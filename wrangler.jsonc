@@ -1,0 +1,7 @@
+{
+  "name": "t-money",
+  "compatibility_date": "2025-05-01",
+  "assets": {
+    "directory": "./"
+  }
+}
