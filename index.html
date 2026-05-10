@@ -1,0 +1,3127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>t-money — real financial decisions, real consequences</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Sans:wght@400;500;700;800&family=Bricolage+Grotesque:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0712;
+    --card: #18132a;
+    --card-2: #221a3a;
+    --card-hover: #2a2046;
+    --border: #2e2547;
+    --border-soft: #221a36;
+    --gold: #f5c518;
+    --gold-soft: #fcd34d;
+    --gold-glow: rgba(245,197,24,0.18);
+    --green: #10b981;
+    --green-soft: #34d399;
+    --green-bg: rgba(16,185,129,0.16);
+    --red: #ef4444;
+    --red-soft: #f87171;
+    --red-bg: rgba(239,68,68,0.14);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.14);
+    --purple: #a78bfa;
+    --purple-bg: rgba(167,139,250,0.14);
+    --text: #ede9f4;
+    --text-muted: #a8a3b8;
+    --text-dim: #6b6580;
+    --font-pixel: 'Press Start 2P', monospace;
+    --font-display: 'Bricolage Grotesque', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    background-image: radial-gradient(ellipse at top, rgba(245,197,24,0.06), transparent 50%);
+    background-attachment: fixed;
+  }
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    position: relative;
+    min-height: 100vh;
+  }
+  .topnav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    backdrop-filter: blur(8px);
+  }
+  .brand {
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .brand .dash { color: var(--text-muted); }
+  .nav-actions { display: flex; gap: 8px; align-items: center; }
+  .nav-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .nav-btn:hover { background: var(--card-hover); border-color: var(--gold); }
+  .age-pill {
+    background: var(--gold);
+    color: #1a0e00;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 12px;
+    box-shadow: 0 0 20px var(--gold-glow);
+  }
+  /* WELCOME */
+  .welcome-hero { text-align: center; padding: 32px 12px 20px; }
+  .welcome-emoji {
+    font-size: 56px;
+    margin-bottom: 14px;
+    display: inline-block;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .welcome-title {
+    font-family: var(--font-display);
+    font-size: 64px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    line-height: 1;
+    margin-bottom: 12px;
+    font-style: italic;
+  }
+  .welcome-title .t { color: var(--gold); }
+  .welcome-title .dash { color: var(--text-dim); margin: 0 -4px; }
+  .welcome-title .money { color: var(--text); }
+  .welcome-tag { color: var(--text-muted); font-size: 15px; margin-bottom: 4px; }
+  .welcome-sub { color: var(--text-muted); font-size: 15px; margin-bottom: 24px; }
+  /* SETUP CARDS */
+  .setup-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 14px;
+  }
+  .setup-label {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    display: block;
+  }
+  .setup-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    transition: border-color 0.15s;
+  }
+  .setup-input:focus { outline: none; border-color: var(--gold); }
+  .setup-input::placeholder { color: var(--text-dim); }
+  .setup-help { color: var(--text-dim); font-size: 12px; margin-top: 8px; font-style: italic; }
+  .option-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .option-grid-4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (min-width: 600px) { .option-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; } }
+  .option-btn {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 14px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+  }
+  .option-btn:hover { border-color: var(--gold-soft); background: var(--card-2); }
+  .option-btn.selected { border-color: var(--gold); background: rgba(245,197,24,0.08); }
+  .option-btn .otitle { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .option-btn .osub { font-size: 12px; color: var(--text-muted); line-height: 1.35; }
+  .start-btn {
+    width: 100%;
+    background: var(--gold);
+    color: #1a0e00;
+    border: none;
+    padding: 16px;
+    border-radius: 14px;
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: 0 0 30px var(--gold-glow);
+    margin-top: 10px;
+  }
+  .start-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 40px var(--gold-glow); }
+  .start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  /* CAREER PREVIEW (AI-generated, live) */
+  .preview-card {
+    background: linear-gradient(135deg, rgba(245,197,24,0.08), rgba(167,139,250,0.06));
+    border: 1.5px solid var(--gold);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+    position: relative;
+    overflow: hidden;
+    animation: slideIn 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .preview-loading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--gold);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .preview-label {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .preview-name {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .preview-name .icon { margin-right: 6px; }
+  .preview-desc { color: var(--text-muted); font-size: 13px; line-height: 1.55; margin-bottom: 14px; }
+  .preview-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .preview-stat {
+    background: rgba(0,0,0,0.3);
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+  .preview-stat-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .preview-stat-value {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+  }
+  .preview-curve {
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  .preview-curve-label {
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .curve-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 60px;
+  }
+  .curve-bar {
+    flex: 1;
+    background: linear-gradient(180deg, var(--gold), var(--gold-soft));
+    border-radius: 3px 3px 0 0;
+    position: relative;
+    min-height: 2px;
+    transition: height 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .curve-bar-label {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-pixel);
+    font-size: 6px;
+    color: var(--text-dim);
+  }
+  .preview-note {
+    background: var(--purple-bg);
+    border-left: 3px solid var(--purple);
+    padding: 10px 12px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+    font-style: italic;
+  }
+  .preview-error {
+    background: var(--red-bg);
+    border: 1px solid var(--red);
+    color: var(--red-soft);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  /* STATS BAR */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 10px;
+    text-align: center;
+  }
+  .stat-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .stat-value { font-family: var(--font-pixel); font-size: 13px; letter-spacing: 0.5px; }
+  .stat-savings .stat-value { color: var(--green-soft); }
+  .stat-debt .stat-value { color: var(--red-soft); }
+  .stat-mood .stat-value { color: var(--gold); }
+  .career-bar {
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .career-bar strong { color: var(--gold); }
+  .career-bar .right { color: var(--text-muted); font-size: 12px; }
+  .progress-track { height: 4px; background: var(--card); border-radius: 999px; overflow: hidden; margin-bottom: 18px; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); border-radius: 999px; transition: width 0.6s cubic-bezier(0.2,0.8,0.2,1); }
+  /* EVENT CARD */
+  .year-label {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+  .event-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    animation: slideIn 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .event-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--gold);
+    color: #1a0e00;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+  .event-tag.opportunity { background: var(--green); color: #042519; }
+  .event-tag.crisis { background: var(--red); color: #fff; }
+  .event-emoji { font-size: 44px; margin-bottom: 10px; line-height: 1; }
+  .event-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; line-height: 1.2; margin-bottom: 10px; }
+  .event-desc { color: var(--text-muted); font-size: 14px; line-height: 1.55; margin-bottom: 14px; }
+  .event-context {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+  /* CHOICES */
+  .choices-label { font-family: var(--font-pixel); font-size: 9px; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 10px; }
+  .choices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .choice-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    font-family: var(--font-body);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+  .choice-btn:hover { border-color: var(--gold-soft); background: var(--card-2); transform: translateY(-1px); }
+  .choice-text { flex: 1; min-width: 0; }
+  .choice-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .choice-lesson { color: var(--text-muted); font-size: 12px; line-height: 1.4; font-style: italic; }
+  .choice-tag {
+    flex-shrink: 0;
+    padding: 5px 9px;
+    border-radius: 6px;
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  .tag-good { background: var(--green-bg); color: var(--green-soft); }
+  .tag-risky { background: var(--red-bg); color: var(--red-soft); }
+  .tag-neutral { background: var(--gold-glow); color: var(--gold-soft); }
+  .choice-arrow {
+    flex-shrink: 0;
+    color: var(--text-dim);
+    font-size: 18px;
+    font-weight: 700;
+    transition: all 0.15s;
+  }
+  .choice-btn:hover .choice-arrow { color: var(--gold); transform: translateX(3px); }
+  /* DECISIONS LOG (end game) */
+  .decisions-log { display: flex; flex-direction: column; gap: 6px; }
+  .decision-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 12.5px;
+  }
+  .decision-age {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    flex-shrink: 0;
+    width: 32px;
+  }
+  .decision-title {
+    flex: 1;
+    color: var(--text);
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .decision-tag {
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-family: var(--font-pixel);
+    font-size: 7px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
+  /* WORD BANK */
+  .word-bank-list { display: flex; flex-direction: column; gap: 8px; }
+  .word-bank-item {
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--gold);
+  }
+  .word-bank-term {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--gold-soft);
+    margin-bottom: 3px;
+  }
+  .word-bank-def {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.45;
+  }
+  /* OUTCOME */
+  .outcome-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 16px;
+    animation: slideIn 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .outcome-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 14px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .outcome-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: grid; place-items: center;
+    background: var(--green-bg); color: var(--green-soft);
+    font-size: 18px;
+  }
+  .outcome-icon.bad { background: var(--red-bg); color: var(--red-soft); }
+  .outcome-icon.mixed { background: var(--gold-glow); color: var(--gold-soft); }
+  .outcome-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+  .outcome-section { margin-bottom: 16px; }
+  .outcome-section:last-of-type { margin-bottom: 0; }
+  .outcome-section-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .outcome-section-text { color: var(--text); font-size: 14px; line-height: 1.6; }
+  .outcome-section-text.muted { color: var(--text-muted); }
+  .projection-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 8px; }
+  .projection-cell {
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+  .projection-year { font-family: var(--font-pixel); font-size: 8px; color: var(--text-dim); margin-bottom: 4px; }
+  .projection-value { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--gold); }
+  .counterfactual-box {
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 8px;
+  }
+  .counterfactual-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--purple);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .counterfactual-text { color: var(--text-muted); font-size: 13px; line-height: 1.5; font-style: italic; }
+  .continue-btn {
+    width: 100%;
+    background: var(--gold);
+    color: #1a0e00;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    transition: all 0.15s;
+  }
+  .continue-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px var(--gold-glow); }
+  /* GLOSSARY TERM */
+  .term {
+    color: var(--gold-soft);
+    border-bottom: 1px dashed var(--gold-soft);
+    cursor: help;
+    font-weight: 600;
+  }
+  .term:hover { color: var(--gold); }
+  /* MODAL */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    z-index: 100;
+    padding: 24px 16px;
+    overflow-y: auto;
+    backdrop-filter: blur(4px);
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 640px;
+    padding: 22px;
+    margin: auto;
+    animation: modalIn 0.25s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .modal-title { font-family: var(--font-display); font-size: 22px; font-weight: 700; }
+  .modal-close {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .modal-close:hover { background: var(--card-hover); }
+  .glossary-search {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+  .glossary-search:focus { outline: none; border-color: var(--gold); }
+  .glossary-list { display: flex; flex-direction: column; gap: 10px; max-height: 60vh; overflow-y: auto; padding-right: 4px; }
+  .glossary-item {
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .glossary-term-name { font-weight: 700; font-size: 14px; color: var(--gold-soft); margin-bottom: 4px; }
+  .glossary-term-def { color: var(--text-muted); font-size: 13px; line-height: 1.5; }
+  /* CALCULATOR */
+  .calc-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  .calc-label { color: var(--text-muted); }
+  .calc-value { font-family: var(--font-mono); font-weight: 700; color: var(--text); }
+  .slider-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border-soft);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .slider-label { font-size: 13px; color: var(--text-muted); }
+  .slider-current { font-family: var(--font-mono); font-weight: 700; color: var(--gold); font-size: 16px; }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 12px var(--gold-glow);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+  }
+  .calc-result {
+    background: linear-gradient(135deg, rgba(245,197,24,0.12), rgba(167,139,250,0.08));
+    border: 1.5px solid var(--gold);
+    border-radius: 14px;
+    padding: 18px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .calc-result-label { font-family: var(--font-pixel); font-size: 8px; color: var(--gold); letter-spacing: 1.5px; margin-bottom: 6px; }
+  .calc-result-value { font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--gold); margin-bottom: 4px; }
+  .calc-result-sub { color: var(--text-muted); font-size: 12px; }
+  /* END GAME */
+  .report-hero {
+    text-align: center;
+    padding: 30px 14px;
+    background: linear-gradient(180deg, rgba(245,197,24,0.08), transparent);
+    border: 1px solid var(--gold);
+    border-radius: 18px;
+    margin-bottom: 16px;
+  }
+  .report-grade-letter {
+    font-family: var(--font-display);
+    font-size: 96px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 8px;
+    background: linear-gradient(180deg, var(--gold), var(--gold-soft));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .report-grade-text { font-family: var(--font-display); font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .report-grade-sub { color: var(--text-muted); font-size: 13px; }
+  .report-final-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+  .report-stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+  }
+  .report-stat-label { font-family: var(--font-pixel); font-size: 8px; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 6px; }
+  .report-stat-value { font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--gold); }
+  .breakdown-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 16px;
+  }
+  .breakdown-title { font-family: var(--font-pixel); font-size: 9px; color: var(--gold); letter-spacing: 1.5px; margin-bottom: 14px; }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-cat { font-size: 14px; }
+  .breakdown-grade { font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+  .grade-A { color: var(--green-soft); }
+  .grade-B { color: var(--blue); }
+  .grade-C { color: var(--gold-soft); }
+  .grade-D { color: #f97316; }
+  .grade-F { color: var(--red-soft); }
+  .biggest-mistake {
+    background: var(--red-bg);
+    border: 1px solid var(--red);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .biggest-mistake-label { font-family: var(--font-pixel); font-size: 8px; color: var(--red-soft); letter-spacing: 1.5px; margin-bottom: 6px; }
+  .biggest-mistake-text { font-size: 14px; line-height: 1.5; }
+  .restart-btn {
+    width: 100%;
+    background: var(--card-2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 14px;
+    border-radius: 12px;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .restart-btn:hover { background: rgba(245,197,24,0.08); }
+  /* FEATURE CARDS (welcome bottom) */
+  .feature-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 18px;
+    margin-bottom: 4px;
+  }
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 10px;
+    text-align: center;
+  }
+  .feature-card .ficon { font-size: 24px; margin-bottom: 6px; line-height: 1; }
+  .feature-card .ftext { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
+  /* BACK BUTTON */
+  .back-btn {
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 13px;
+    margin-bottom: 14px;
+    transition: all 0.15s;
+  }
+  .back-btn:hover { background: var(--card-hover); color: var(--text); border-color: var(--gold-soft); }
+  .step2-hero { padding: 8px 4px 16px; }
+  .step2-title {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .step2-sub { color: var(--text-muted); font-size: 14px; }
+  /* SPEED SELECTOR */
+  .speed-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  /* YEAR SUMMARY CARD */
+  .year-summary-card {
+    background: var(--card);
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    padding: 18px;
+    margin-bottom: 14px;
+    animation: slideIn 0.4s cubic-bezier(0.2,0.8,0.2,1);
+  }
+  .summary-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .summary-age-label { font-family: var(--font-pixel); font-size: 9px; color: var(--gold); letter-spacing: 1.5px; }
+  .summary-mood-label { font-family: var(--font-pixel); font-size: 10px; color: var(--text-muted); }
+  .summary-changes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .summary-change-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 11px;
+    background: var(--bg);
+    border-radius: 8px;
+    font-size: 12px;
+  }
+  .summary-change-label { color: var(--text-muted); }
+  .summary-change-value { font-family: var(--font-mono); font-weight: 700; font-size: 13px; }
+  .change-positive { color: var(--green-soft); }
+  .change-negative { color: var(--red-soft); }
+  .change-neutral { color: var(--text); }
+  .summary-tip {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--blue-bg);
+    border-left: 3px solid var(--blue);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.45;
+  }
+  .summary-skip-btn {
+    width: 100%;
+    background: var(--card-2);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 10px;
+    border-radius: 10px;
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.15s;
+  }
+  .summary-skip-btn:hover { background: var(--card-hover); color: var(--text); border-color: var(--gold-soft); }
+  /* CALCULATOR TABS */
+  .calc-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+  }
+  .calc-tab {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .calc-tab:hover { color: var(--text); border-color: var(--gold-soft); }
+  .calc-tab.active { background: var(--gold); color: #1a0e00; border-color: var(--gold); }
+  .calc-panel { display: none; }
+  .calc-panel.active { display: block; }
+  .calc-input-row {
+    display: flex; gap: 8px;
+    align-items: center;
+    background: var(--bg);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+  }
+  .calc-input-row label { flex: 1; font-size: 13px; color: var(--text-muted); }
+  .calc-input-row input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 700;
+    text-align: right;
+    width: 110px;
+    outline: none;
+  }
+  .calc-input-row select {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+    outline: none;
+    cursor: pointer;
+  }
+  .calc-explainer {
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--purple-bg);
+    border-left: 3px solid var(--purple);
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .calc-comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .calc-compare-cell {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .calc-compare-label { font-family: var(--font-pixel); font-size: 7px; color: var(--text-dim); letter-spacing: 1px; margin-bottom: 4px; }
+  .calc-compare-value { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--text); }
+  .calc-compare-cell.winner { border-color: var(--green); }
+  .calc-compare-cell.winner .calc-compare-value { color: var(--green-soft); }
+  .calc-section-title {
+    font-family: var(--font-pixel);
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+  /* AGE INPUT special */
+  .age-input-wrap { display: flex; align-items: center; gap: 12px; }
+  .age-input-wrap input {
+    flex: 0 0 100px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .age-input-helper { color: var(--text-dim); font-size: 12px; flex: 1; }
+  /* COMPACT INTRO CARD */
+  .intro-card {
+    text-align: center;
+    padding: 28px 22px 22px;
+  }
+  .intro-icon {
+    font-size: 56px;
+    line-height: 1;
+    margin-bottom: 12px;
+    animation: float 3s ease-in-out infinite;
+  }
+  .intro-name {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    letter-spacing: -0.5px;
+  }
+  .intro-hook {
+    color: var(--text-muted);
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+  .intro-facts {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 6px 14px;
+    margin-bottom: 14px;
+  }
+  .fact-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-soft);
+    font-size: 13.5px;
+  }
+  .fact-row:last-child { border-bottom: none; }
+  .fact-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    width: 24px;
+    text-align: center;
+  }
+  .fact-label {
+    font-family: var(--font-pixel);
+    font-size: 8px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+    flex-shrink: 0;
+    width: 42px;
+  }
+  .fact-text {
+    color: var(--text);
+    line-height: 1.4;
+    flex: 1;
+  }
+  .hidden { display: none !important; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--card-hover); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="topnav" class="topnav hidden">
+    <div class="brand">t<span class="dash">-</span>MONEY</div>
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="openModal('glossary-modal')">📖</button>
+      <button class="nav-btn" onclick="open401k()">🧮</button>
+      <div class="age-pill">Age <span id="age-display">18</span></div>
+    </div>
+  </div>
+
+  <!-- SETUP -->
+  <div id="setup-screen">
+    <div class="welcome-hero">
+      <div class="welcome-emoji">💰</div>
+      <h1 class="welcome-title"><span class="t">t</span><span class="dash">-</span><span class="money">money</span></h1>
+      <p class="welcome-tag">Real financial decisions. Real consequences.</p>
+      <p class="welcome-sub">Live a life. Find out what money actually does.</p>
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">YOUR NAME</label>
+      <input type="text" id="name-input" class="setup-input" placeholder="Enter your name..." maxlength="20" />
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">YOUR CURRENT AGE</label>
+      <div class="age-input-wrap">
+        <input type="number" id="age-input" class="setup-input" min="16" max="55" value="18" />
+        <div class="age-input-helper">We'll start your simulation here and play forward to retirement.</div>
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">WHAT DO YOU WANT TO DO WITH YOUR LIFE?</label>
+      <input type="text" id="career-input" class="setup-input" placeholder="e.g., become a nurse, start a food truck, code video games, work the rigs..." />
+      <p class="setup-help">Type literally anything. We'll generate your career path in real time.</p>
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">DIFFICULTY (Starting Circumstances)</label>
+      <div class="option-grid-4" id="difficulty-options">
+        <button class="option-btn" data-difficulty="easy">
+          <div class="otitle">😎 Easy</div>
+          <div class="osub">Suburban, parents help</div>
+        </button>
+        <button class="option-btn selected" data-difficulty="medium">
+          <div class="otitle">🙂 Medium</div>
+          <div class="osub">Working class, normal loans</div>
+        </button>
+        <button class="option-btn" data-difficulty="hard">
+          <div class="otitle">😤 Hard</div>
+          <div class="osub">No safety net</div>
+        </button>
+        <button class="option-btn" data-difficulty="nightmare">
+          <div class="otitle">💀 Nightmare</div>
+          <div class="osub">Family relies on you</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">WHERE DO YOU LIVE?</label>
+      <div class="option-grid">
+        <button class="option-btn" data-geo="hcol">
+          <div class="otitle">🌆 High Cost</div>
+          <div class="osub">NYC, SF, LA, Boston, Seattle</div>
+        </button>
+        <button class="option-btn selected" data-geo="mcol">
+          <div class="otitle">🏙️ Medium Cost</div>
+          <div class="osub">Atlanta, Denver, Austin</div>
+        </button>
+        <button class="option-btn" data-geo="lcol">
+          <div class="otitle">🏡 Low Cost</div>
+          <div class="osub">Most of South & Midwest</div>
+        </button>
+        <button class="option-btn" data-geo="rural">
+          <div class="otitle">🌾 Rural</div>
+          <div class="osub">Lowest cost, fewer jobs</div>
+        </button>
+      </div>
+    </div>
+
+    <div class="setup-card">
+      <label class="setup-label">PACE OF LIFE</label>
+      <div class="speed-grid">
+        <button class="option-btn" data-speed="slow">
+          <div class="otitle">🐢 Slow</div>
+          <div class="osub">Year-by-year recap. Watch every dollar move.</div>
+        </button>
+        <button class="option-btn selected" data-speed="medium">
+          <div class="otitle">🚶 Medium</div>
+          <div class="osub">Recap every 2–3 years. Balance of detail and pace.</div>
+        </button>
+        <button class="option-btn" data-speed="fast">
+          <div class="otitle">⚡ Fast</div>
+          <div class="osub">Major life events only. Demo speed.</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- AI-generated career preview slot -->
+    <div id="preview-slot"></div>
+
+    <button id="start-btn" class="start-btn" disabled onclick="startGame()">Fill in the fields above to begin →</button>
+
+    <div class="feature-cards">
+      <div class="feature-card">
+        <div class="ficon">🎯</div>
+        <div class="ftext">AI-tailored career path</div>
+      </div>
+      <div class="feature-card">
+        <div class="ficon">🧮</div>
+        <div class="ftext">5 calculators built in</div>
+      </div>
+      <div class="feature-card">
+        <div class="ficon">🏆</div>
+        <div class="ftext">Graded at retirement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div id="game-screen" class="hidden">
+    <div class="stats-grid">
+      <div class="stat-card stat-savings">
+        <div class="stat-label">SAVINGS</div>
+        <div class="stat-value" id="stat-savings">$0</div>
+      </div>
+      <div class="stat-card stat-debt">
+        <div class="stat-label">DEBT</div>
+        <div class="stat-value" id="stat-debt">$0</div>
+      </div>
+      <div class="stat-card stat-mood">
+        <div class="stat-label">MOOD</div>
+        <div class="stat-value" id="stat-mood">😀 70</div>
+      </div>
+    </div>
+
+    <div class="career-bar">
+      <div><strong id="career-job">—</strong> <span id="career-income"></span></div>
+      <div class="right" id="career-location"></div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+    </div>
+
+    <div id="event-area"></div>
+  </div>
+
+  <!-- GLOSSARY MODAL -->
+  <div id="glossary-modal" class="modal-bg">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">📖 Money Glossary</div>
+        <button class="modal-close" onclick="closeModal('glossary-modal')">×</button>
+      </div>
+      <input type="text" class="glossary-search" id="glossary-search" placeholder="Search terms..." />
+      <div class="glossary-list" id="glossary-list"></div>
+    </div>
+  </div>
+
+  <!-- 401K MODAL -->
+  <div id="calc-modal" class="modal-bg">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">🧮 Financial Calculators</div>
+        <button class="modal-close" onclick="closeModal('calc-modal')">×</button>
+      </div>
+      <div class="calc-tabs">
+        <button class="calc-tab active" data-tab="calc-401k">401(k)</button>
+        <button class="calc-tab" data-tab="calc-ira">Roth IRA</button>
+        <button class="calc-tab" data-tab="calc-compound">Compound</button>
+        <button class="calc-tab" data-tab="calc-mortgage">Mortgage</button>
+        <button class="calc-tab" data-tab="calc-debt">Debt Payoff</button>
+      </div>
+
+      <!-- 401(k) Panel -->
+      <div class="calc-panel active" id="calc-401k">
+        <div class="calc-input-row"><label>Current age</label><input type="number" id="k401-age" value="22" min="16" max="70" /></div>
+        <div class="calc-input-row"><label>Annual salary ($)</label><input type="number" id="k401-salary" value="50000" min="0" step="1000" /></div>
+        <div class="calc-input-row"><label>Current 401(k) balance ($)</label><input type="number" id="k401-balance" value="0" min="0" step="100" /></div>
+        <div class="calc-input-row"><label>Employer match cap (%)</label><input type="number" id="k401-match" value="4" min="0" max="20" step="0.5" /></div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Your contribution %</span><span class="slider-current" id="k401-contrib-display">5%</span></div>
+          <input type="range" id="k401-contrib" min="0" max="25" value="5" step="1" />
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Avg annual return</span><span class="slider-current" id="k401-return-display">7%</span></div>
+          <input type="range" id="k401-return" min="3" max="10" value="7" step="1" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">PROJECTED AT AGE 65</div>
+          <div class="calc-result-value" id="k401-result">$0</div>
+          <div class="calc-result-sub" id="k401-sub">Adjust contribution to see impact</div>
+        </div>
+        <div class="calc-explainer" id="k401-tip">A 401(k) is a tax-deferred retirement account. Money goes in pre-tax (lowering your tax bill now), grows tax-free, and is taxed when you withdraw in retirement. The employer match is free money — always contribute at least enough to capture it.</div>
+      </div>
+
+      <!-- Roth IRA Panel -->
+      <div class="calc-panel" id="calc-ira">
+        <div class="calc-input-row"><label>Current age</label><input type="number" id="ira-age" value="22" min="16" max="70" /></div>
+        <div class="calc-input-row"><label>Current IRA balance ($)</label><input type="number" id="ira-balance" value="0" min="0" step="100" /></div>
+        <div class="calc-input-row"><label>Account type</label>
+          <select id="ira-type">
+            <option value="roth">Roth (after-tax)</option>
+            <option value="traditional">Traditional (pre-tax)</option>
+          </select>
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Annual contribution</span><span class="slider-current" id="ira-contrib-display">$7,000</span></div>
+          <input type="range" id="ira-contrib" min="0" max="7000" value="7000" step="500" />
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Avg annual return</span><span class="slider-current" id="ira-return-display">7%</span></div>
+          <input type="range" id="ira-return" min="3" max="10" value="7" step="1" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label" id="ira-result-label">TAX-FREE AT 65</div>
+          <div class="calc-result-value" id="ira-result">$0</div>
+          <div class="calc-result-sub" id="ira-sub">Max contribution: $7,000/yr (under 50)</div>
+        </div>
+        <div class="calc-comparison">
+          <div class="calc-compare-cell"><div class="calc-compare-label">YOU'LL CONTRIBUTE</div><div class="calc-compare-value" id="ira-total-contrib">$0</div></div>
+          <div class="calc-compare-cell winner"><div class="calc-compare-label">GROWTH (FREE MONEY)</div><div class="calc-compare-value" id="ira-growth">$0</div></div>
+        </div>
+        <div class="calc-explainer" id="ira-tip">Roth IRA: You pay tax now, growth is tax-free, withdrawals in retirement are tax-free. Best for young earners. Traditional IRA: deduct contributions now, pay tax later. Annual limit: $7,000 ($8,000 if 50+). Income limits apply.</div>
+      </div>
+
+      <!-- Compound Interest Panel -->
+      <div class="calc-panel" id="calc-compound">
+        <div class="calc-input-row"><label>Initial deposit ($)</label><input type="number" id="ci-initial" value="1000" min="0" step="100" /></div>
+        <div class="calc-input-row"><label>Monthly contribution ($)</label><input type="number" id="ci-monthly" value="200" min="0" step="50" /></div>
+        <div class="calc-input-row"><label>Years to grow</label><input type="number" id="ci-years" value="30" min="1" max="60" /></div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Avg annual return</span><span class="slider-current" id="ci-return-display">7%</span></div>
+          <input type="range" id="ci-return" min="2" max="12" value="7" step="1" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">FINAL VALUE</div>
+          <div class="calc-result-value" id="ci-result">$0</div>
+          <div class="calc-result-sub" id="ci-sub">Total invested vs. growth →</div>
+        </div>
+        <div class="calc-comparison">
+          <div class="calc-compare-cell"><div class="calc-compare-label">YOU PUT IN</div><div class="calc-compare-value" id="ci-contributed">$0</div></div>
+          <div class="calc-compare-cell winner"><div class="calc-compare-label">MARKET MADE</div><div class="calc-compare-value" id="ci-earned">$0</div></div>
+        </div>
+        <div class="calc-explainer">Compound interest is interest earning interest. Albert Einstein supposedly called it "the eighth wonder of the world." The S&P 500 has averaged ~10% annually over a century. After fees and inflation, 7% real return is realistic.</div>
+      </div>
+
+      <!-- Mortgage Panel -->
+      <div class="calc-panel" id="calc-mortgage">
+        <div class="calc-input-row"><label>Home price ($)</label><input type="number" id="mort-price" value="350000" min="50000" step="5000" /></div>
+        <div class="calc-input-row"><label>Down payment ($)</label><input type="number" id="mort-down" value="35000" min="0" step="1000" /></div>
+        <div class="calc-input-row"><label>Loan term (years)</label>
+          <select id="mort-term">
+            <option value="30">30 years</option>
+            <option value="20">20 years</option>
+            <option value="15">15 years</option>
+          </select>
+        </div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Interest rate</span><span class="slider-current" id="mort-rate-display">7.0%</span></div>
+          <input type="range" id="mort-rate" min="3" max="10" value="7" step="0.25" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">MONTHLY PAYMENT (P+I)</div>
+          <div class="calc-result-value" id="mort-payment">$0</div>
+          <div class="calc-result-sub" id="mort-sub">Principal + interest only. Add ~$400–800/mo for taxes, insurance, PMI.</div>
+        </div>
+        <div class="calc-comparison">
+          <div class="calc-compare-cell"><div class="calc-compare-label">TOTAL INTEREST PAID</div><div class="calc-compare-value" id="mort-interest">$0</div></div>
+          <div class="calc-compare-cell"><div class="calc-compare-label">TOTAL OF PAYMENTS</div><div class="calc-compare-value" id="mort-total">$0</div></div>
+        </div>
+        <div class="calc-explainer" id="mort-tip">A mortgage is one of the largest financial commitments most people make. Total cost = monthly × 1.4 (taxes, insurance, repairs). 20% down avoids PMI. A 15-year mortgage saves ~50% in interest vs 30-year but doubles the monthly payment.</div>
+      </div>
+
+      <!-- Debt Payoff Panel -->
+      <div class="calc-panel" id="calc-debt">
+        <div class="calc-input-row"><label>Total debt balance ($)</label><input type="number" id="debt-balance" value="5000" min="0" step="100" /></div>
+        <div class="calc-input-row"><label>Interest rate (APR %)</label><input type="number" id="debt-apr" value="22" min="0" max="40" step="0.5" /></div>
+        <div class="slider-wrap">
+          <div class="slider-header"><span class="slider-label">Monthly payment</span><span class="slider-current" id="debt-pmt-display">$200</span></div>
+          <input type="range" id="debt-pmt" min="25" max="2000" value="200" step="25" />
+        </div>
+        <div class="calc-result">
+          <div class="calc-result-label">MONTHS TO PAYOFF</div>
+          <div class="calc-result-value" id="debt-months">0</div>
+          <div class="calc-result-sub" id="debt-sub">Higher payment = much less interest paid</div>
+        </div>
+        <div class="calc-comparison">
+          <div class="calc-compare-cell"><div class="calc-compare-label">TOTAL INTEREST</div><div class="calc-compare-value" id="debt-interest">$0</div></div>
+          <div class="calc-compare-cell"><div class="calc-compare-label">TOTAL PAID</div><div class="calc-compare-value" id="debt-total">$0</div></div>
+        </div>
+        <div class="calc-explainer">Two strategies: <strong>Avalanche</strong> (pay highest-APR debts first) saves the most money. <strong>Snowball</strong> (pay smallest balances first) gives psychological wins. Math says avalanche; psychology often wins with snowball. Choose what you'll actually stick with.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================================
+// CONFIG
+// =============================================================
+const GEO = {
+  hcol:  { name: 'High Cost (NYC/SF/LA)', code: 'HCOL', costMul: 1.7 },
+  mcol:  { name: 'Medium Cost (Atlanta/Denver)', code: 'MCOL', costMul: 1.0 },
+  lcol:  { name: 'Low Cost (South/Midwest)', code: 'LCOL', costMul: 0.65 },
+  rural: { name: 'Rural', code: 'RURAL', costMul: 0.45 },
+};
+
+const DIFFICULTY = {
+  easy:      { name: 'Easy', startCash: 5000,  debtMul: 0.4, mood: 80, note: 'Suburban upbringing. Parents helped with college.' },
+  medium:    { name: 'Medium', startCash: 500, debtMul: 1.0, mood: 70, note: 'Working class. Standard student loans.' },
+  hard:      { name: 'Hard', startCash: 0,    debtMul: 1.4, mood: 60, note: 'Low-income background. No financial safety net.' },
+  nightmare: { name: 'Nightmare', startCash: 0, debtMul: 1.9, mood: 50, note: 'Family relies on YOU. Deep debt before you started.' },
+};
+
+const GLOSSARY = {
+  '401(k)': "When your job offers retirement savings — pre-tax money goes in, grows tax-free, often with employer matching. Always contribute at least up to the match; that's free money.",
+  '401k': "When your job offers retirement savings — pre-tax money goes in, grows tax-free, often with employer matching. Always contribute up to the match.",
+  'Roth IRA': "When you save for retirement on your own — pay taxes now, withdraw tax-free later. Best while you're young and in a low tax bracket. $7k/yr limit.",
+  'IRA': "When you want retirement savings outside of work. Two types: Roth (taxed now) or Traditional (taxed later). $7k/yr contribution limit.",
+  'Compound interest': "When money you save earns interest, then THAT interest also earns interest. $200/mo at 7% becomes $245k in 30 years from $72k of contributions.",
+  'APR': "When you borrow money (credit card, mortgage, student loan) — the yearly % cost. Credit cards 18-28%, mortgages 6-8%, student loans 5-9%. Lower = cheaper.",
+  'APY': "When you save in a bank account — the yearly % you earn, with compounding. High-yield savings: 4-5%. Regular checking: 0.01%. Higher = better.",
+  'Credit score': "Your reputation with lenders, 300-850. Used when applying for loans, apartments, even some jobs. 740+ unlocks the best rates.",
+  'Net worth': "Everything you own minus everything you owe. The real measure of wealth — not your salary.",
+  'Emergency fund': "Cash set aside for surprises (car repair, medical bill, layoff). Aim for 3-6 months of expenses. Stops a crisis from becoming a catastrophe.",
+  'Index fund': "An investment that buys a tiny slice of the entire stock market (like S&P 500). Low fees, diversified, beats most active investors over time.",
+  'Diversification': "When you spread investments across many things so one bad bet can't sink you. Don't put all your eggs in one basket.",
+  'Equity': "The part of an asset you actually own. Home equity = home value minus mortgage. Business equity = your ownership share.",
+  'Sweat equity': "When you earn ownership by working without pay (or below market). Common in startups. Get it in writing or it doesn't exist.",
+  'HSA': "When you have a high-deductible health plan — Health Savings Account is triple tax-free: pre-tax in, tax-free growth, tax-free out for medical. Best deal in finance.",
+  'PMI': "When your home down payment is under 20% — Private Mortgage Insurance is an extra fee (~$200/mo on a $300k loan). Goes away once you hit 20% equity.",
+  'Down payment': "Cash you pay upfront when buying a home. 20% avoids PMI; FHA loans allow as little as 3.5%.",
+  'Principal': "The original loan amount before interest. When you pay extra toward principal, you save huge interest over the life of the loan.",
+  'Refinance': "When you replace an existing loan with a new one — usually at a lower rate. Smart when rates drop 1%+ below your current rate.",
+  'Capital gains': "When you sell an investment for more than you paid. Long-term (held >1 year) is taxed at lower rates than short-term.",
+  'Dividend': "When a company pays cash to its shareholders, usually quarterly. Reinvesting them compounds returns over decades.",
+  'Bull market': "When stock prices rise and optimism is high. Average bull market lasts ~5 years.",
+  'Bear market': "When stock prices fall 20%+ from a peak. Historically always recovers; panic-selling locks in permanent losses.",
+  'Inflation': "When prices rise over time. $100 today buys what $74 bought 10 years ago. Investing fights inflation; cash loses to it.",
+  'Liquid assets': "Money you can access fast — checking, savings, money market. Home equity is NOT liquid (takes weeks/months).",
+  'Bankruptcy': "When you legally discharge debts you can't pay. Trashes credit for 7-10 years but lets you start over.",
+  'House hacking': "When you buy a 2-4 unit property, live in one unit, and rent the others. Tenants pay your mortgage. FHA loan allows 3.5% down.",
+  'Term life insurance': "Cheap insurance for a fixed period (e.g., 20 years). $30/mo for $500k coverage at age 30. Almost always better than 'whole life'.",
+  'Opportunity cost': "What you give up by choosing one option over another. A $5k vacation = ~$50k in 30 years if invested instead.",
+  'Vesting': "When stock or options become yours over time — typically 4 years for tech grants. Leave before vesting and you forfeit the unvested portion.",
+  'FAFSA': "When applying for college aid — Free Application for Federal Student Aid. Required for federal grants, loans, and many scholarships. Submit even if you think you won't qualify.",
+  'GI Bill': "When you serve in the military — covers college tuition + housing stipend after service. Essentially free college.",
+  'Stipend': "A fixed periodic payment, often for trainees, residents, grad students, or interns. Usually below a living wage; not a salary.",
+  'Salary': "When you're a salaried employee — fixed annual pay split into regular paychecks. Take-home is 25-30% less due to taxes and benefits.",
+  'Loan': "Borrowed money you must repay, usually with interest (APR). Common types: mortgage, student, auto, personal, business.",
+  'Profit': "When a business takes in more money than it spends. Profit ≠ revenue. Most failing businesses have revenue but no profit.",
+  'Profit margin': "How much of revenue is actually profit. Restaurants: 3-5%. Software: 30%+. Lower margin = more sensitive to cost increases.",
+  'Cash flow': "When money coming in vs going out each month determines survival. A profitable business can still die from bad cash flow timing.",
+  'Revenue': "Total money a business takes in, before subtracting costs. Not profit — many high-revenue businesses lose money.",
+  'Overhead': "Fixed costs that don't change with sales — rent, utilities, salaries. Lower overhead = more flexibility in slow months.",
+  'Pension': "When your employer (often government, military, or unions) pays you a guaranteed income for life after retirement. Rare in 2026 but extremely valuable.",
+  'Benefits': "Non-cash compensation — health insurance, 401(k) match, paid time off. Often worth 25-40% of salary on top of pay.",
+  'Take-home pay': "What actually hits your bank account after taxes, insurance, and 401(k) deductions. Usually 65-75% of gross salary.",
+  'Gross income': "Your total pay before taxes and deductions. The big number on the offer letter — not what you actually get.",
+  'Side hustle': "When you earn extra income outside your main job — freelancing, gig work, small business. Tax rules differ from W-2 income.",
+  'Tax bracket': "When you pay income tax — your top dollar is taxed at one rate, lower dollars at lower rates. Higher income ≠ all taxed at top rate.",
+  'Roth conversion': "When you move money from a Traditional IRA to a Roth IRA, paying tax now to avoid tax later. Useful in low-income years.",
+  'HCOL': "High Cost of Living — expensive metros like NYC, SF, LA, Boston, Seattle. Pay is higher but rent often eats 40%+ of income.",
+  'MCOL': "Medium Cost of Living — mid-tier cities like Atlanta, Denver, Austin, Chicago. Best balance of pay vs expenses for most people.",
+  'LCOL': "Low Cost of Living — most of the South and Midwest. Lower pay, but rent might be only 15-20% of income, so savings rates can soar.",
+  'RURAL': "Rural areas — lowest cost of living, but fewer job options. Remote work makes this viable for some careers.",
+};
+
+// =============================================================
+// STATE
+// =============================================================
+const state = {
+  name: '',
+  careerInput: '',
+  difficulty: 'medium',
+  geography: 'mcol',
+  speed: 'medium',
+  startAge: 18,
+  career: null,                    // AI-generated career profile
+
+  age: 18,
+  savings: 0,
+  debt: 0,
+  mood: 70,
+  monthlyIncome: 0,
+  annualIncome: 0,
+
+  contribution401k: 0,
+  retirement401k: 0,
+  investments: 0,
+  hasCredit: false,
+  creditScore: 0,
+  hasHome: false,
+  homeEquity: 0,
+  hasPartner: false,
+  hasInvestments: false,
+  hasEmergencyFund: false,
+  savingsRate: 0.10,
+
+  // Track year-over-year change for summary cards
+  lastSnapshot: null,
+  yearsSinceSummary: 0,
+
+  // Track financial terms encountered for end-game word bank
+  encounteredTerms: new Set(),
+
+  scoreCard: { saving: 0, investing: 0, debt: 0, risk: 0 },
+  decisions: [],
+  currentEventIndex: 0,
+};
+
+// =============================================================
+// EVENTS — universal, financial impact scales to AI-generated income
+// =============================================================
+const EVENTS = [
+  {
+    age: 19, type: 'opportunity', emoji: '💳',
+    title: 'First credit card offer',
+    desc: 'A pre-approval lands in your mailbox. 18% [[APR]], no annual fee, 1% cash back. Building credit early matters.',
+    context: 'Credit history takes years to build',
+    choices: [
+      {
+        label: 'Get the card. Use it for small things, pay in full monthly.',
+        lesson: 'This is exactly how to build credit safely.', tag: 'good',
+        apply: s => { s.creditScore = 700; s.hasCredit = true; s.scoreCard.debt += 1; },
+        outcome: {
+          summary: 'Smart. Three years from now your score will be 740+, unlocking better rates on everything.',
+          principle: 'Credit cards aren\'t evil — interest is. Pay full balance monthly, pay $0 in interest, build a credit history that saves you tens of thousands on future loans.',
+          counterfactual: 'Players who skip credit entirely often discover at 25 they can\'t rent an apartment because they have NO credit history (worse than bad credit).',
+        },
+      },
+      {
+        label: 'Get it but only use for emergencies.',
+        lesson: 'Cautious — but you need usage to build a score.', tag: 'neutral',
+        apply: s => { s.creditScore = 660; s.hasCredit = true; },
+        outcome: {
+          summary: 'Score builds slowly. Around 660 in three years — okay but not great.',
+          principle: 'Credit bureaus reward consistent usage and on-time payment. Zero usage = thin file = mediocre score.',
+          counterfactual: 'The smart play: small recurring charges (Netflix, gas) on the card, autopaid in full.',
+        },
+      },
+      {
+        label: 'Skip credit cards entirely. Cash only.',
+        lesson: 'Feels safe, creates a hidden problem.', tag: 'risky',
+        apply: s => { s.creditScore = 0; s.hasCredit = false; s.scoreCard.debt -= 1; },
+        outcome: {
+          summary: 'No credit history will haunt you. Future apartments, car loans, and even some jobs will be harder.',
+          principle: 'No credit ≠ good credit. Lenders treat "no history" as risky. Fix takes 6+ months once you start.',
+          counterfactual: 'A starter card used responsibly would have you at 700+ by mid-20s — saving $50k+ over a lifetime in lower interest rates.',
+        },
+      },
+    ],
+  },
+  {
+    age: 21, type: 'event', emoji: '🏠',
+    title: 'First apartment time',
+    desc: 'You\'re moving out. Three options shape your wealth in your 20s more than your salary will.',
+    context: 'Housing should be under 30% of gross income',
+    choices: [
+      {
+        label: 'Live with 2 roommates — split a 3-bedroom.',
+        lesson: 'Roommates are the cheat code to building wealth in your 20s.', tag: 'good',
+        apply: s => { s.savingsRate = 0.20; s.mood -= 5; s.scoreCard.saving += 2; },
+        outcome: {
+          summary: 'Save ~$600/month vs. solo living. Over 4 years that\'s $28,800 — invested at 7%, that\'s $43k by 30.',
+          principle: 'In your 20s, the rent decision matters more than the salary decision. Roommates can save you $25k+ in 4 years.',
+          counterfactual: 'Solo apartments feel adult, but solo costs in your 20s often delay homeownership and retirement by 5+ years.',
+        },
+      },
+      {
+        label: 'Live alone in a small studio.',
+        lesson: 'Independence has a price tag.', tag: 'neutral',
+        apply: s => { s.savingsRate = 0.05; s.mood += 5; },
+        outcome: {
+          summary: 'You feel more adult, but you\'re saving almost nothing. Mood up, future net worth way down.',
+          principle: 'Lifestyle creep starts here. The "one luxury I really want" snowballs.',
+          counterfactual: 'A roommate situation for 3 years would have funded a Roth IRA fully and built a solid emergency fund.',
+        },
+      },
+      {
+        label: 'Move back home for a year. Stack cash hard.',
+        lesson: 'Cultural stigma vs. financial superpower.', tag: 'good',
+        apply: s => { s.savingsRate = 0.40; s.mood -= 10; s.scoreCard.saving += 3; },
+        outcome: {
+          summary: 'Awkward at parties. Massively ahead financially. ~$15k banked this year.',
+          principle: 'In many cultures this is the default. The "must move out at 18" idea is uniquely American — and uniquely expensive.',
+          counterfactual: 'Moving home for 2 years can be the single biggest financial decision of your 20s. People who do it often retire 5–10 years earlier.',
+        },
+      },
+    ],
+  },
+  {
+    age: 22, type: 'crisis', emoji: '📈',
+    title: 'Your job offers a 401(k) with employer match',
+    desc: 'HR sends an enrollment form. Match: 100% of contributions up to 4% of salary. You can put in 0–25%. This is the biggest financial decision of your decade.',
+    context: 'Employer match = free money',
+    choices: [
+      {
+        label: 'Contribute 10% — way past the match.',
+        lesson: 'Aggressive saving in your 20s is the highest-leverage move you can make.', tag: 'good',
+        apply: s => { s.contribution401k = 10; s.scoreCard.investing += 3; },
+        outcome: {
+          summary: 'You\'ll have ~$1.6M at 65. The first 4% is matched, so it\'s really 14% going in.',
+          principle: 'Time is the most powerful variable. [[Compound interest]] means $1 saved at 22 = $14 at 65. $1 saved at 42 = $4 at 65.',
+          counterfactual: 'Skipping the 401k entirely costs ~$1.5M at retirement. Missing just the match alone costs $400k+.',
+        },
+      },
+      {
+        label: 'Contribute 4% — get the full match.',
+        lesson: 'Free money is non-negotiable. This is the floor.', tag: 'good',
+        apply: s => { s.contribution401k = 4; s.scoreCard.investing += 1; },
+        outcome: {
+          summary: 'You captured the full match — 100% return on day one. ~$650k at 65.',
+          principle: 'Anything less than the full employer match leaves free money on the table. ALWAYS get the match first.',
+          counterfactual: 'Bumping to 10% would nearly triple your retirement balance. Marginal cost now: $200/month. Future cost of NOT doing it: $1M.',
+        },
+      },
+      {
+        label: 'Skip it. Take home as much cash as possible.',
+        lesson: 'Pre-tax savings effectively reduce your tax bill.', tag: 'risky',
+        apply: s => { s.contribution401k = 0; s.scoreCard.investing -= 3; },
+        outcome: {
+          summary: 'Big mistake. You just turned down free money AND tax savings AND ~$1.5M at retirement.',
+          principle: 'A 401(k) match is the highest-return investment you\'ll ever see — usually 100% instantly. Pre-tax contributions also lower today\'s tax bill.',
+          counterfactual: 'Even contributing JUST the match (4%) would have gotten you $650k+ at retirement. The cost of skipping: catastrophic.',
+        },
+      },
+    ],
+  },
+  {
+    age: 24, type: 'crisis', emoji: '🚗',
+    title: 'Your car transmission dies',
+    desc: 'The repair is $3,200. Mechanic says it\'s the only fix. You need transportation.',
+    context: 'Average emergency cost: $2,000–$5,000',
+    choices: [
+      {
+        label: 'Pay cash from your [[Emergency fund]].',
+        lesson: 'This is exactly what an emergency fund is for.', tag: 'good',
+        apply: s => { s.savings -= 3200; s.scoreCard.saving += 2; if (s.savings < 0) { s.debt += -s.savings; s.savings = 0; } s.hasEmergencyFund = true; },
+        outcome: {
+          summary: 'You handled it. No interest, no stress, just inconvenience. Time to rebuild the fund.',
+          principle: '3–6 months of expenses in cash isn\'t paranoia — it\'s the foundation. Emergencies happen every 2–3 years.',
+          counterfactual: 'Without the fund, this $3,200 on a credit card at 22% [[APR]] becomes $4,200 if paid over a year.',
+        },
+      },
+      {
+        label: 'Put it on a credit card. Pay it down monthly.',
+        lesson: 'Credit cards have brutal interest rates.', tag: 'risky',
+        apply: s => { s.debt += 3500; s.creditScore = (s.creditScore || 700) - 30; s.scoreCard.debt -= 2; },
+        outcome: {
+          summary: 'At 22% [[APR]], this $3,200 will cost you $3,800+ if you pay it off in a year.',
+          principle: 'Credit card debt compounds against you the same way investments compound for you — but ~3x faster.',
+          counterfactual: 'Building an emergency fund first would have saved you $600+ in interest and the credit score hit.',
+        },
+      },
+      {
+        label: 'Sell the car. Take public transit + ride-share.',
+        lesson: 'Total cost of car ownership is often $7k+/year.', tag: 'good',
+        apply: s => { s.savings += 1500; s.mood -= 3; s.scoreCard.saving += 2; },
+        outcome: {
+          summary: 'Inconvenient, but you cut $400+/month in insurance/gas/maintenance.',
+          principle: 'In any major city, going car-free saves $5k–10k/year. That\'s a maxed-out [[Roth IRA]].',
+          counterfactual: 'In rural areas this is impractical. In cities, it\'s often the smartest move people don\'t make.',
+        },
+      },
+    ],
+  },
+  {
+    age: 26, type: 'opportunity', emoji: '💡',
+    title: 'A friend wants to start a business with you',
+    desc: 'They have an idea for a local service business. They need a co-founder. Real risk, real reward.',
+    context: 'Small businesses fail 50%+ within 5 years',
+    choices: [
+      {
+        label: 'Invest $5,000 of savings to join as 50% owner.',
+        lesson: 'Small businesses fail ~50% within 5 years.', tag: 'risky',
+        apply: s => { s.savings -= 5000; s.investments += 5000; s.hasInvestments = true; s.scoreCard.risk += 2; },
+        outcome: {
+          summary: 'You\'re a co-owner now. In 3 years, this is either worth $0 or $50k+. Roll the dice.',
+          principle: '[[Equity]] ownership is how the wealthy build wealth. But concentration in one business = concentration risk.',
+          counterfactual: 'The same $5k in an [[Index fund]] becomes $35k by 65 with zero effort. The business could 10x or zero.',
+        },
+      },
+      {
+        label: 'Help for free in exchange for a future profit share.',
+        lesson: '[[Sweat equity]] is real — protect it with a contract.', tag: 'good',
+        apply: s => { s.mood -= 3; s.hasInvestments = true; s.scoreCard.risk += 1; },
+        outcome: {
+          summary: 'Nights and weekends. If it works, you have skin in the game. If not, you only lost time.',
+          principle: 'Equity for work is how most early employees and co-founders win. Get it documented — verbal promises evaporate.',
+          counterfactual: 'Many friends-and-family startups dissolve over equity disputes. A simple operating agreement up-front prevents 90% of disasters.',
+        },
+      },
+      {
+        label: 'Decline — focus on your stable income.',
+        lesson: '[[Opportunity cost]] cuts both ways.', tag: 'neutral',
+        apply: s => {},
+        outcome: {
+          summary: 'Safe. Boring. Probably the right call for most people.',
+          principle: 'Ignoring opportunities isn\'t free — but neither is jumping at every one. The default for most people: "no" with rare exceptions.',
+          counterfactual: 'If the business succeeds, this is the regret of a lifetime. If it fails, you saved $5k.',
+        },
+      },
+    ],
+  },
+  {
+    age: 28, type: 'event', emoji: '💍',
+    title: 'Marriage is on the table',
+    desc: 'You\'re thinking about getting married. Combining finances is one of the biggest money decisions you\'ll ever make.',
+    context: 'Divorce is the #1 destroyer of generational wealth',
+    choices: [
+      {
+        label: 'Get married. Combine finances fully. No prenup.',
+        lesson: 'Romantic and financially exposed.', tag: 'risky',
+        apply: s => { s.hasPartner = true; s.mood += 10; s.scoreCard.risk -= 1; },
+        outcome: {
+          summary: 'Married. Joint accounts, joint goals. Joint debts. 40–50% of marriages end in divorce, average cost $15k–20k plus split assets.',
+          principle: 'Marriage is a financial contract first, romantic second (legally). Plan for the optimistic case but protect against the realistic one.',
+          counterfactual: 'A prenup isn\'t pessimism — it\'s the same logic as a 401k. You hope you don\'t need it, but the cost of not having one when you do is catastrophic.',
+        },
+      },
+      {
+        label: 'Marriage with a prenup and "yours/mine/ours" accounts.',
+        lesson: 'Healthy money boundaries strengthen relationships.', tag: 'good',
+        apply: s => { s.hasPartner = true; s.mood += 8; s.scoreCard.saving += 1; },
+        outcome: {
+          summary: 'Both autonomy AND shared goals. Studies show couples who do this fight less about money.',
+          principle: 'Leading cause of divorce: money fights. Clear systems prevent 80% of conflicts.',
+          counterfactual: 'Couples who never discuss money structures are the ones who blow up financially during their first big disagreement.',
+        },
+      },
+      {
+        label: 'Stay single, focus on your career and finances.',
+        lesson: 'Single life can be financially efficient.', tag: 'neutral',
+        apply: s => { s.mood -= 3; },
+        outcome: {
+          summary: 'Lower household income but full financial autonomy. Many wealth-builders thrive single in their 20s and 30s.',
+          principle: 'Marriage isn\'t a wealth strategy — it\'s a life choice. Single people can absolutely build wealth (often faster, fewer compromises).',
+          counterfactual: 'The "marriage is required for adulthood" idea is cultural, not financial. Some of the wealthiest people stayed single until 40+.',
+        },
+      },
+    ],
+  },
+  {
+    age: 30, type: 'event', emoji: '🏡',
+    title: 'Should you buy a home?',
+    desc: 'Mortgage rates: 7%. [[Down payment]] would wipe most of your savings. Renting is cheaper monthly but builds no [[Equity]].',
+    context: 'Buying isn\'t always smarter than renting',
+    choices: [
+      {
+        label: 'Buy a starter home. 10% down, accept [[PMI]].',
+        lesson: 'Building equity but tying up cash.', tag: 'neutral',
+        apply: s => { s.savings -= 30000; s.debt += 270000; s.hasHome = true; s.homeEquity = 30000; },
+        outcome: {
+          summary: 'You own a home. PMI eats $200/month for ~7 years. Taxes, repairs, HOA add ~$800/month beyond mortgage.',
+          principle: 'Total cost of homeownership ≈ mortgage × 1.4 (taxes, insurance, repairs, PMI). Many "I bought below my rent" stories ignore this.',
+          counterfactual: 'Renting and investing the difference (especially the down payment) often grows to $200k+ by retirement.',
+        },
+      },
+      {
+        label: 'Keep renting. Invest the would-be down payment.',
+        lesson: 'Renting + investing often beats buying in the first 7 years.', tag: 'good',
+        apply: s => { s.investments += 30000; s.hasInvestments = true; s.scoreCard.investing += 2; },
+        outcome: {
+          summary: 'Your $30k in [[Index fund]]s will likely outpace home appreciation in the short term.',
+          principle: 'Buy a home for stability and lifestyle, not as an investment. Math only beats renting if you stay 7+ years AND maintenance is reasonable.',
+          counterfactual: 'In hot markets you missed appreciation. In flat markets you saved on a money pit.',
+        },
+      },
+      {
+        label: '[[House hacking]] — buy a duplex, live in one side, rent the other.',
+        lesson: 'Tenants pay your mortgage.', tag: 'good',
+        apply: s => { s.savings -= 35000; s.debt += 320000; s.hasHome = true; s.homeEquity = 35000; s.scoreCard.investing += 3; s.scoreCard.risk += 1; },
+        outcome: {
+          summary: 'Tenants cover 70% of your mortgage. Building equity AND learning real estate. Some hassle, big upside.',
+          principle: 'House hacking is one of the most powerful wealth moves available. FHA loans allow as little as 3.5% down on multi-units.',
+          counterfactual: 'Most people don\'t know this is possible. The few who do often retire 10+ years earlier.',
+        },
+      },
+    ],
+  },
+  {
+    age: 32, type: 'crisis', emoji: '📉',
+    title: 'Stock market crashes 35%',
+    desc: 'Your retirement and investments dropped sharply over 8 weeks. The news is panic. Your portfolio is deep red.',
+    context: '[[Bear market]] — historically always recovers',
+    choices: [
+      {
+        label: 'Hold steady. Do nothing.',
+        lesson: 'Time in the market beats timing the market.', tag: 'good',
+        apply: s => { s.scoreCard.investing += 3; s.mood -= 5; },
+        outcome: {
+          summary: 'Within 18 months your portfolio recovers and hits new highs. Boring is winning.',
+          principle: 'Every [[Bear market]] in US history has fully recovered. Average recovery: 2 years. The penalty for selling at the bottom is permanent.',
+          counterfactual: 'Selling at the bottom and re-entering at the top costs investors 40%+ of lifetime returns.',
+        },
+      },
+      {
+        label: 'Sell everything. Stop the bleeding.',
+        lesson: 'Locking in losses is the most expensive emotion in investing.', tag: 'risky',
+        apply: s => { s.investments = (s.investments || 0) * 0.6; s.retirement401k = (s.retirement401k || 0) * 0.65; s.scoreCard.investing -= 4; s.mood -= 8; },
+        outcome: {
+          summary: 'You crystallized 35% losses. Worse: you\'ll wait too long to re-enter and miss the rebound.',
+          principle: 'Markets recover BEFORE headlines say they\'re recovering. By the time it "feels safe" again, you\'ve missed the rebound.',
+          counterfactual: 'Staying invested would have you back to even within 18 months and at new highs within 3 years.',
+        },
+      },
+      {
+        label: 'Buy more. Stocks are on sale.',
+        lesson: 'Be greedy when others are fearful.', tag: 'good',
+        apply: s => { s.savings -= 5000; s.investments += 5000; s.scoreCard.investing += 4; s.scoreCard.risk += 2; },
+        outcome: {
+          summary: 'Bold move. Your $5k buys 35% more shares. By 50 it\'s worth $40k+.',
+          principle: 'Crashes are wealth transfers from the impatient to the patient. Most fortunes are built buying when others sell.',
+          counterfactual: 'Most people freeze in crashes. Doing the opposite of the crowd is hard but historically rewarded.',
+        },
+      },
+    ],
+  },
+  {
+    age: 34, type: 'crisis', emoji: '💼',
+    title: 'You got laid off',
+    desc: 'Restructuring. Severance: 8 weeks. You have until then to find something or burn through your [[Emergency fund]].',
+    context: 'Layoffs hit ~30% of workers in their lifetime',
+    choices: [
+      {
+        label: 'Take severance, take time. Job hunt strategically.',
+        lesson: 'A good job search beats a fast one.', tag: 'good',
+        apply: s => { s.savings -= 12000; s.mood -= 5; s.scoreCard.saving += 1; },
+        outcome: {
+          summary: 'Six weeks later you land a 15% raise. The pause was worth it.',
+          principle: 'Job search velocity ≠ job search quality. The right role at +15% beats the fast role at -5%.',
+          counterfactual: 'Panic-accepting the first offer often costs $10k–30k/year in compensation for years.',
+        },
+      },
+      {
+        label: 'Take the first job you can get. Stop the bleeding.',
+        lesson: 'A bird in the hand vs. a better one in the bush.', tag: 'risky',
+        apply: s => { s.scoreCard.saving -= 1; s.mood -= 3; },
+        outcome: {
+          summary: 'You took a 10% pay cut to feel safe. Two years to recover.',
+          principle: 'The fear-driven job search undersells you. A 6-month emergency fund is what makes the strategic search possible.',
+          counterfactual: 'A bigger emergency fund would have given you the courage to wait for the better offer.',
+        },
+      },
+      {
+        label: 'Start consulting. Use your network.',
+        lesson: 'Self-employment is volatile but high-leverage.', tag: 'risky',
+        apply: s => { s.savings -= 8000; s.scoreCard.risk += 2; s.mood -= 2; },
+        outcome: {
+          summary: 'Slow start. By month 6 you\'re billing $150/hour. Inconsistent but building something.',
+          principle: 'Consulting/freelance is a "business in a box." Most people undercharge by 50%. Charge what you\'re worth.',
+          counterfactual: 'Some find their best career path through a layoff. Others burn through savings and end up worse off. Have a runway.',
+        },
+      },
+    ],
+  },
+  {
+    age: 38, type: 'event', emoji: '👵',
+    title: 'Your aging parent needs help',
+    desc: 'Mom can\'t live alone safely anymore. Three options, each with real financial weight.',
+    context: 'Family obligations are real expenses',
+    choices: [
+      {
+        label: 'Move them in with you. Handle it personally.',
+        lesson: 'Caregiving is unpaid labor with real cost.', tag: 'neutral',
+        apply: s => { s.savings -= 8000; s.mood += 5; },
+        outcome: {
+          summary: 'You\'re a hero in the family. You\'re also exhausted, and your career stalls.',
+          principle: 'The "sandwich generation" cost is real — caregivers lose ~$300k in lifetime earnings on average. Don\'t do it alone.',
+          counterfactual: 'Splitting costs and time with siblings up front prevents resentment AND financial damage.',
+        },
+      },
+      {
+        label: 'Pay for assisted living ($4k/month).',
+        lesson: 'Quality care isn\'t cheap.', tag: 'neutral',
+        apply: s => { s.savings -= 25000; s.scoreCard.saving -= 1; },
+        outcome: {
+          summary: 'Mom is well cared for. Your savings take a $25k hit this year alone.',
+          principle: 'Long-term care: $4k–10k/month. Most people aren\'t prepared. Long-term care insurance exists for this exact reason.',
+          counterfactual: 'Conversations about parents\' finances at 60 — before crisis — save tens of thousands.',
+        },
+      },
+      {
+        label: 'Coordinate with siblings — split cost and time.',
+        lesson: 'Family finance is best done in writing.', tag: 'good',
+        apply: s => { s.savings -= 9000; s.scoreCard.saving += 1; },
+        outcome: {
+          summary: 'You handle weekends, sister handles weekdays, brother covers the difference financially. Healthy.',
+          principle: 'Split caregiving prevents one person from absorbing the entire financial AND emotional cost.',
+          counterfactual: 'Most family caregiving disputes come from ambiguity. Spelling it out up-front prevents 90% of conflicts.',
+        },
+      },
+    ],
+  },
+  {
+    age: 42, type: 'event', emoji: '🔄',
+    title: 'Mid-career: pivot or stay?',
+    desc: 'You\'re bored but stable. A new field could pay 30% more — or 30% less. Or stay and ride it out.',
+    context: 'Career shifts are easier in your 30s than 50s',
+    choices: [
+      {
+        label: 'Pivot to a higher-paying adjacent field.',
+        lesson: 'Career capital compounds — stack skills, don\'t restart.', tag: 'good',
+        apply: s => { s.scoreCard.investing += 1; s.mood += 5; },
+        outcome: {
+          summary: 'A year of upskilling, then a 30% raise. Glad you didn\'t wait until 50.',
+          principle: 'Adjacent pivots (existing skills, new field) usually beat pure career switches. Same skills, new market.',
+          counterfactual: 'Waiting until 50+ to pivot makes it 5x harder due to age bias and energy levels.',
+        },
+      },
+      {
+        label: 'Stay safe. Keep grinding.',
+        lesson: 'The "safe" path has its own risks.', tag: 'neutral',
+        apply: s => { s.mood -= 3; },
+        outcome: {
+          summary: 'You stay. Income is fine. Engagement isn\'t. By 50 you\'re burnt out.',
+          principle: 'Job security in 2026 is mostly an illusion — the safest move is keeping your skills market-current.',
+          counterfactual: 'Industry shifts can make "safe" jobs obsolete in 5 years. The pivot was probably required eventually anyway.',
+        },
+      },
+      {
+        label: 'Pivot to a passion field, accept the pay cut.',
+        lesson: 'Money buys options; passion fuels longevity.', tag: 'risky',
+        apply: s => { s.mood += 12; s.scoreCard.investing -= 1; },
+        outcome: {
+          summary: 'You\'re happier. You\'ll work 10 more years than you would have. Net lifetime income — surprisingly close.',
+          principle: 'A 30% pay cut at 42 is recoverable if it extends working years and engagement. Burnout costs more than salary cuts.',
+          counterfactual: 'Many people who chase only money retire at 60 and find nothing left of themselves.',
+        },
+      },
+    ],
+  },
+  {
+    age: 48, type: 'crisis', emoji: '🏥',
+    title: 'Major medical issue',
+    desc: 'You need surgery. With insurance, max out-of-pocket: $8k.',
+    context: 'Healthcare is the #1 cause of US bankruptcy',
+    choices: [
+      {
+        label: 'Use [[HSA]] savings (tax-free for medical).',
+        lesson: 'HSA is the most tax-advantaged account in America.', tag: 'good',
+        apply: s => { s.scoreCard.saving += 2; },
+        outcome: {
+          summary: 'Tax-free withdrawal. No penalty. Exactly what HSAs are designed for.',
+          principle: 'HSA: pre-tax in, tax-free growth, tax-free out for medical. The only triple-tax-advantaged account.',
+          counterfactual: 'Without an HSA, the same expense costs ~30% more in pre-tax dollars.',
+        },
+      },
+      {
+        label: 'Pay from emergency fund and savings.',
+        lesson: 'Solid plan, but tax-inefficient.', tag: 'neutral',
+        apply: s => { s.savings -= 8000; },
+        outcome: {
+          summary: 'You handled it but used after-tax money for what could have been pre-tax.',
+          principle: 'Most medical bills can be paid with HSA dollars. Even old receipts can be reimbursed.',
+          counterfactual: 'Maxing your HSA every year from 30+ would have $80k+ in it now — covering this and growing for retirement.',
+        },
+      },
+      {
+        label: 'Take on debt — payment plan with the hospital.',
+        lesson: 'Hospitals will negotiate. Always ask.', tag: 'risky',
+        apply: s => { s.debt += 8000; s.scoreCard.debt -= 2; },
+        outcome: {
+          summary: 'Payment plan: $200/month for 4 years. Ties up cash flow.',
+          principle: 'Hospitals will reduce bills 30–50% for cash payment up front. Always negotiate.',
+          counterfactual: 'A simple call to the billing department often reduces these bills significantly.',
+        },
+      },
+    ],
+  },
+  {
+    age: 52, type: 'opportunity', emoji: '⏰',
+    title: 'Pre-retirement reality check',
+    desc: 'Your retirement projection vs. your goal. Time to course-correct or accept reality.',
+    context: 'Last decade of earning is the highest-leverage one',
+    choices: [
+      {
+        label: 'Max out everything. Aggressive catch-up contributions.',
+        lesson: '50+ catch-up contributions are a real superpower.', tag: 'good',
+        apply: s => { s.contribution401k = 15; s.savings -= 8000; s.investments += 8000; s.scoreCard.investing += 3; s.scoreCard.saving += 2; },
+        outcome: {
+          summary: 'You add $200k+ to your retirement balance over the next 13 years.',
+          principle: 'Past 50, the IRS allows extra "catch-up" contributions. The last 10 years often add 20% to retirement balance.',
+          counterfactual: 'Most people coast in their 50s and regret it. The math says: floor it.',
+        },
+      },
+      {
+        label: 'Stay the course. Adjust expectations.',
+        lesson: 'Sometimes the answer is acceptance.', tag: 'neutral',
+        apply: s => {},
+        outcome: {
+          summary: 'You retire at 67 instead of 65 with a slightly leaner plan. Not the worst outcome.',
+          principle: 'Working 2 extra years is sometimes equivalent to saving 30% more for 10 years.',
+          counterfactual: 'The aggressive catch-up would have given you choices. Staying the course is fine but limiting.',
+        },
+      },
+      {
+        label: 'Reduce lifestyle now to save more.',
+        lesson: 'Lifestyle inflation is the silent retirement killer.', tag: 'good',
+        apply: s => { s.savings += 10000; s.mood -= 3; s.scoreCard.saving += 2; },
+        outcome: {
+          summary: 'You move to a smaller home, cut $1k/month. That $12k/year becomes $200k+ by 65.',
+          principle: '50s downsize: kids out, expenses naturally drop. Capture that drop instead of inflating into it.',
+          counterfactual: 'Most people upgrade lifestyle as kids leave. Doing the opposite is the move.',
+        },
+      },
+    ],
+  },
+];
+
+// =============================================================
+// HELPERS
+// =============================================================
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n)) return '$0';
+  const v = Math.round(n);
+  const abs = Math.abs(v);
+  if (abs >= 1_000_000) return (v < 0 ? '-' : '') + '$' + (abs/1_000_000).toFixed(1) + 'M';
+  if (abs >= 1_000) return (v < 0 ? '-' : '') + '$' + (abs/1_000).toFixed(abs >= 10000 ? 0 : 1) + 'k';
+  return (v < 0 ? '-$' : '$') + abs.toLocaleString();
+}
+function fmtFull(n) {
+  if (n === null || n === undefined || isNaN(n)) return '$0';
+  const v = Math.round(n);
+  return (v < 0 ? '-$' : '$') + Math.abs(v).toLocaleString();
+}
+function moodEmoji(m) {
+  if (m >= 80) return '😄';
+  if (m >= 65) return '😀';
+  if (m >= 50) return '🙂';
+  if (m >= 35) return '😐';
+  if (m >= 20) return '😟';
+  return '😞';
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function renderTerms(html) {
+  // turn [[term]] into <span class="term">
+  return html.replace(/\[\[([^\]]+)\]\]/g, (_, term) => {
+    const def = GLOSSARY[term];
+    if (def && state.encounteredTerms) state.encounteredTerms.add(term);
+    const safe = def ? escapeHtml(def).replace(/"/g, '&quot;') : '';
+    return `<span class="term" data-term="${escapeHtml(term)}" title="${safe}">${escapeHtml(term)}</span>`;
+  });
+}
+
+// Auto-detect glossary terms in plain text from AI and wrap them
+function autoHighlightTerms(text) {
+  if (!text) return '';
+  let html = escapeHtml(text);
+  // Sort terms by length descending so multi-word terms (e.g., "Roth IRA") match before short ones (e.g., "IRA")
+  const terms = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
+  // Use placeholders to prevent re-wrapping
+  const placeholders = [];
+  for (const term of terms) {
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const startB = /^\w/.test(term) ? '\\b' : '';
+    const endB = /\w$/.test(term) ? '\\b' : '';
+    const re = new RegExp(`${startB}(${escaped})${endB}`, 'gi');
+    html = html.replace(re, (match, captured) => {
+      const def = GLOSSARY[term];
+      const safeDef = escapeHtml(def).replace(/"/g, '&quot;');
+      if (state.encounteredTerms) state.encounteredTerms.add(term);
+      const placeholder = `\x01${placeholders.length}\x01`;
+      placeholders.push(`<span class="term" data-term="${escapeHtml(term)}" title="${safeDef}">${captured}</span>`);
+      return placeholder;
+    });
+  }
+  // Restore placeholders
+  for (let i = 0; i < placeholders.length; i++) {
+    html = html.split(`\x01${i}\x01`).join(placeholders[i]);
+  }
+  return html;
+}
+function attachTermHandlers() {
+  document.querySelectorAll('.term').forEach(el => {
+    el.onclick = () => {
+      const term = el.getAttribute('data-term');
+      openModal('glossary-modal');
+      const search = document.getElementById('glossary-search');
+      search.value = term;
+      renderGlossary(term);
+    };
+  });
+}
+
+// =============================================================
+// AI CAREER GENERATOR (powered by Claude API)
+// =============================================================
+let careerRequestId = 0;
+let careerDebounceTimer = null;
+
+function buildCareerPrompt(input, geo, difficulty) {
+  return `You are a financial reality researcher for a life simulation game. Generate REALISTIC financial data for someone in 2026 USA.
+
+Career goal: "${input}"
+Geography: "${GEO[geo].name}"
+Starting circumstances: "${DIFFICULTY[difficulty].name}" — ${DIFFICULTY[difficulty].note}
+
+Return ONLY valid JSON (no markdown, no preamble) matching this exact structure:
+
+{
+  "name": "Specific career title (max 6 words)",
+  "icon": "single emoji",
+  "desc": "ONE punchy sentence (max 14 words). The trade-off in plain language. No fluff.",
+  "startingDebt": <integer dollars>,
+  "incomeByAge": {
+    "18": <number>, "20": <number>, "22": <number>, "25": <number>, "28": <number>,
+    "32": <number>, "38": <number>, "45": <number>, "52": <number>
+  },
+  "jobByAge": {
+    "22": "Title (max 4 words)",
+    "28": "Title (max 4 words)",
+    "38": "Title (max 4 words)",
+    "50": "Title (max 4 words)"
+  },
+  "note": "ONE sentence, max 16 words. The unsaid truth most people don't know.",
+  "majorRisk": "ONE sentence, max 12 words. The biggest financial trap in this career."
+}
+
+CRITICAL RULES:
+- KEEP TEXT SHORT. Each text field has a strict word limit. Engaging, punchy, no filler.
+- USE PRECISE FINANCIAL TERMS when they fit naturally — like APR, equity, profit margin, cash flow, stipend, pension, benefits, take-home pay, salary, loan, overhead, vesting, tax bracket. These get highlighted as learning moments. Don't force them, but lean into specific vocabulary over generic words.
+- Salaries reflect ${GEO[geo].name} cost-of-living (HCOL +25-35%, LCOL -10-20%, rural -25%).
+- Be brutally realistic. Med students earn $0 until residency. Trades earn real money at 19.
+- If input is vague or unusual, pick the most sensible interpretation and roll with it.
+- Real US median 2026 salary data.
+
+Return ONLY the JSON object.`;
+}
+
+async function generateCareer(input, geo, difficulty) {
+  const myRequestId = ++careerRequestId;
+  const prompt = buildCareerPrompt(input, geo, difficulty);
+  console.log('[t-money] Generating career:', input, '|', GEO[geo].code, '|', difficulty);
+
+  let response;
+  try {
+    response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+  } catch (e) {
+    console.error('[t-money] Network error:', e);
+    throw new Error('Network error: ' + (e.message || 'unknown'));
+  }
+
+  // Drop stale responses if user has typed since
+  if (myRequestId !== careerRequestId) {
+    const err = new Error('Stale request');
+    err.name = 'StaleRequest';
+    throw err;
+  }
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    console.error('[t-money] API error', response.status, errText);
+    throw new Error(`API ${response.status}: ${errText.slice(0, 150) || response.statusText}`);
+  }
+
+  const data = await response.json();
+  console.log('[t-money] API response received');
+
+  const text = (data.content || [])
+    .filter(c => c.type === 'text')
+    .map(c => c.text)
+    .join('')
+    .trim();
+
+  if (!text) {
+    console.error('[t-money] Empty response:', data);
+    throw new Error('Empty response from API');
+  }
+
+  // Robust JSON extraction
+  let jsonStr = text
+    .replace(/```(?:json)?\s*/gi, '')
+    .replace(/```\s*$/gi, '')
+    .trim();
+
+  const firstBrace = jsonStr.indexOf('{');
+  const lastBrace = jsonStr.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    jsonStr = jsonStr.slice(firstBrace, lastBrace + 1);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonStr);
+  } catch (e) {
+    console.error('[t-money] JSON parse failed. Raw text:', text);
+    throw new Error('Malformed response from API');
+  }
+
+  if (!parsed.name || !parsed.incomeByAge) {
+    console.error('[t-money] Missing required fields:', parsed);
+    throw new Error('Response missing required fields');
+  }
+
+  return parsed;
+}
+
+function renderPreviewLoading() {
+  document.getElementById('preview-slot').innerHTML = `
+    <div class="preview-card">
+      <div class="preview-loading">
+        <div class="spinner"></div>
+        <span>Researching your path... salary data, debt loads, real-world circumstances.</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderPreviewError(msg) {
+  document.getElementById('preview-slot').innerHTML = `
+    <div class="preview-card">
+      <div class="preview-error">
+        <strong>⚠ Couldn't generate path</strong><br>
+        <span style="font-size: 12px; opacity: 0.85;">${escapeHtml(msg)}</span><br>
+        <button class="nav-btn" style="margin-top: 10px;" onclick="maybeGenerateCareer()">↻ Retry</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderPreviewClear() {
+  document.getElementById('preview-slot').innerHTML = '';
+}
+
+function renderPreview(career) {
+  const ages = ['18','22','28','38','52'];
+  const incomes = ages.map(a => career.incomeByAge[a] || 0);
+  const maxInc = Math.max(...incomes, 1);
+  const bars = ages.map((a, i) => {
+    const h = Math.max(2, (incomes[i] / maxInc) * 100);
+    return `<div class="curve-bar" style="height: ${h}%;">
+      <div class="curve-bar-label">${a}</div>
+    </div>`;
+  }).join('');
+
+  const debt = Math.round((career.startingDebt || 0) * DIFFICULTY[state.difficulty].debtMul);
+  const peakIncome = Math.max(...Object.values(career.incomeByAge));
+
+  document.getElementById('preview-slot').innerHTML = `
+    <div class="preview-card">
+      <div class="preview-label">✦ YOUR PATH (live research)</div>
+      <div class="preview-name"><span class="icon">${escapeHtml(career.icon || '💼')}</span>${escapeHtml(career.name)}</div>
+      <div class="preview-desc">${escapeHtml(career.desc)}</div>
+      <div class="preview-stats">
+        <div class="preview-stat">
+          <div class="preview-stat-label">STARTING DEBT</div>
+          <div class="preview-stat-value">${fmtFull(debt)}</div>
+        </div>
+        <div class="preview-stat">
+          <div class="preview-stat-label">PEAK INCOME</div>
+          <div class="preview-stat-value">${fmt(peakIncome)}/yr</div>
+        </div>
+      </div>
+      <div class="preview-curve">
+        <div class="preview-curve-label">INCOME TRAJECTORY (AGES 18→52)</div>
+        <div class="curve-bars" style="margin-bottom: 18px;">${bars}</div>
+      </div>
+      <div class="preview-note"><strong>Reality check:</strong> ${escapeHtml(career.note || '')}</div>
+    </div>
+  `;
+}
+
+function maybeGenerateCareer() {
+  const input = document.getElementById('career-input').value.trim();
+  if (!input) {
+    state.career = null;
+    renderPreviewClear();
+    checkCanStart();
+    return;
+  }
+  // Show loading immediately
+  renderPreviewLoading();
+  clearTimeout(careerDebounceTimer);
+  careerDebounceTimer = setTimeout(async () => {
+    try {
+      const career = await generateCareer(input, state.geography, state.difficulty);
+      state.career = career;
+      renderPreview(career);
+      checkCanStart();
+    } catch (e) {
+      if (e.name === 'StaleRequest') return; // user kept typing
+      console.error('[t-money] Career generation failed:', e);
+      renderPreviewError(e.message || 'Unknown error');
+      state.career = null;
+      checkCanStart();
+    }
+  }, 700);
+}
+
+// =============================================================
+// SETUP HANDLERS
+// =============================================================
+const nameInput = document.getElementById('name-input');
+const ageInput = document.getElementById('age-input');
+const careerInput = document.getElementById('career-input');
+const startBtn = document.getElementById('start-btn');
+
+function checkCanStart() {
+  const ageVal = parseInt(ageInput.value);
+  const ageOk = ageVal >= 16 && ageVal <= 55;
+  const ready = !!(nameInput.value.trim() && ageOk && careerInput.value.trim() && state.career);
+  startBtn.disabled = !ready;
+  startBtn.textContent = !nameInput.value.trim()
+    ? 'Enter your name to begin →'
+    : !ageOk
+      ? 'Enter your age (16-55) →'
+      : !careerInput.value.trim()
+        ? 'Tell us what you want to do →'
+        : !state.career
+          ? 'Generating your career path...'
+          : `Begin life as ${state.career.name.split(' ').slice(0, 3).join(' ')} →`;
+}
+
+nameInput.addEventListener('input', checkCanStart);
+ageInput.addEventListener('input', () => {
+  state.startAge = parseInt(ageInput.value) || 18;
+  checkCanStart();
+});
+careerInput.addEventListener('input', maybeGenerateCareer);
+
+document.querySelectorAll('[data-difficulty]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-difficulty]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.difficulty = btn.dataset.difficulty;
+    if (careerInput.value.trim()) maybeGenerateCareer();
+  });
+});
+
+document.querySelectorAll('[data-geo]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-geo]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.geography = btn.dataset.geo;
+    if (careerInput.value.trim()) maybeGenerateCareer();
+  });
+});
+
+document.querySelectorAll('[data-speed]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    state.speed = btn.dataset.speed;
+  });
+});
+
+// =============================================================
+// GAME START
+// =============================================================
+function startGame() {
+  state.name = nameInput.value.trim();
+  state.careerInput = careerInput.value.trim();
+  state.startAge = Math.max(16, Math.min(55, parseInt(ageInput.value) || 18));
+
+  const diff = DIFFICULTY[state.difficulty];
+  state.savings = diff.startCash;
+  state.debt = Math.round((state.career.startingDebt || 0) * diff.debtMul);
+  state.mood = diff.mood;
+  state.age = state.startAge;
+  state.scoreCard = { saving: 0, investing: 0, debt: 0, risk: 0 };
+  state.decisions = [];
+  state.lastSnapshot = snapshot();
+  state.yearsSinceSummary = 0;
+  state.encounteredTerms = new Set();
+
+  // Skip events that happened before the user's starting age
+  state.currentEventIndex = 0;
+  while (state.currentEventIndex < EVENTS.length && EVENTS[state.currentEventIndex].age < state.startAge) {
+    state.currentEventIndex++;
+  }
+
+  document.getElementById('setup-screen').classList.add('hidden');
+  document.getElementById('game-screen').classList.remove('hidden');
+  document.getElementById('topnav').classList.remove('hidden');
+
+  showCareerIntro();
+}
+
+function snapshot() {
+  return {
+    age: state.age,
+    savings: state.savings,
+    debt: state.debt,
+    retirement401k: state.retirement401k,
+    investments: state.investments,
+    homeEquity: state.homeEquity || 0,
+    annualIncome: state.annualIncome,
+    mood: state.mood,
+  };
+}
+
+function showCareerIntro() {
+  const c = state.career;
+  const diff = DIFFICULTY[state.difficulty];
+  const geo = GEO[state.geography];
+
+  const html = `
+    <div class="year-label">YEAR ${state.startAge} · ${state.name.toUpperCase()}'S STORY BEGINS</div>
+    <div class="event-card intro-card">
+      <div class="intro-icon">${escapeHtml(c.icon || '💼')}</div>
+      <div class="intro-name">${escapeHtml(c.name)}</div>
+      <div class="intro-hook">${autoHighlightTerms(c.desc)}</div>
+    </div>
+
+    <div class="intro-facts">
+      <div class="fact-row">
+        <span class="fact-icon">💡</span>
+        <span class="fact-label">Truth</span>
+        <span class="fact-text">${autoHighlightTerms(c.note || '')}</span>
+      </div>
+      <div class="fact-row">
+        <span class="fact-icon">⚠️</span>
+        <span class="fact-label">Risk</span>
+        <span class="fact-text">${autoHighlightTerms(c.majorRisk || '')}</span>
+      </div>
+      <div class="fact-row">
+        <span class="fact-icon">💰</span>
+        <span class="fact-label">Start</span>
+        <span class="fact-text">${autoHighlightTerms(`${fmt(state.savings)} cash · ${fmt(state.debt)} debt · ${geo.code}`)}</span>
+      </div>
+    </div>
+
+    <button class="continue-btn" onclick="advanceToNextEvent()">Begin life at ${state.startAge} →</button>
+  `;
+  document.getElementById('event-area').innerHTML = html;
+  attachTermHandlers();
+  updateStats();
+}
+
+// =============================================================
+// GAME LOOP
+// =============================================================
+function getIncomeAtAge(age) {
+  const c = state.career;
+  if (!c || !c.incomeByAge) return 0;
+  // interpolate between known points
+  const points = Object.keys(c.incomeByAge).map(a => [parseInt(a), c.incomeByAge[a]]).sort((a,b) => a[0]-b[0]);
+  if (age <= points[0][0]) return points[0][1];
+  if (age >= points[points.length-1][0]) return points[points.length-1][1];
+  for (let i = 0; i < points.length - 1; i++) {
+    const [a1, i1] = points[i], [a2, i2] = points[i+1];
+    if (age >= a1 && age <= a2) {
+      const t = (age - a1) / (a2 - a1);
+      return i1 + (i2 - i1) * t;
+    }
+  }
+  return 0;
+}
+
+function getJobAtAge(age) {
+  const c = state.career;
+  if (!c || !c.jobByAge) return c?.name || '—';
+  const points = Object.keys(c.jobByAge).map(a => parseInt(a)).sort((a,b) => a-b);
+  let job = c.jobByAge[points[0]];
+  for (const p of points) {
+    if (age >= p) job = c.jobByAge[p];
+  }
+  return job;
+}
+
+function advanceYear() {
+  state.age += 1;
+  const annualIncome = getIncomeAtAge(state.age);
+  state.annualIncome = annualIncome;
+  state.monthlyIncome = Math.round(annualIncome / 12);
+
+  if (annualIncome > 0) {
+    const geo = GEO[state.geography];
+    const takeHome = annualIncome * 0.75;
+    // rent costs scale with geo cost multiplier; in HCOL, rent eats more
+    const rentBase = takeHome * 0.28;
+    const rent = rentBase * geo.costMul;
+    const living = takeHome * 0.30;
+    const after = takeHome - rent - living;
+    const savingsRate = state.savingsRate || 0.10;
+    const annualSavings = Math.max(0, after) * (1 + savingsRate);
+    state.savings += Math.round(annualSavings * 0.5); // simplified
+    if (state.contribution401k > 0) {
+      const contrib = annualIncome * (state.contribution401k / 100);
+      const match = annualIncome * Math.min(state.contribution401k / 100, 0.04);
+      state.retirement401k = Math.round((state.retirement401k + contrib + match) * 1.07);
+    }
+    if (state.debt > 0) {
+      const debtPayment = Math.min(state.debt, takeHome * 0.10);
+      state.debt = Math.max(0, Math.round((state.debt - debtPayment) * 1.06));
+    }
+    if (state.investments > 0) state.investments = Math.round(state.investments * 1.07);
+    if (state.hasHome) state.homeEquity = Math.round((state.homeEquity || 0) * 1.04 + 4000);
+  }
+  updateStats();
+}
+
+function advanceToNextEvent() {
+  if (state.currentEventIndex >= EVENTS.length) {
+    // No more events — age out to 65 with summaries
+    return advanceToRetirement();
+  }
+  const ev = EVENTS[state.currentEventIndex];
+
+  // Determine years until next event
+  const yearsToEvent = ev.age - state.age;
+
+  if (state.speed === 'fast' || yearsToEvent === 0) {
+    // Fast: jump straight to the event
+    while (state.age < ev.age) advanceYear();
+    renderEvent(ev);
+    return;
+  }
+
+  // Slow/Medium: show a year summary first if appropriate
+  const summaryInterval = state.speed === 'slow' ? 1 : 3;
+  if (yearsToEvent >= summaryInterval) {
+    // Advance up to summaryInterval years (or until next event, whichever is less)
+    const yearsToAdvance = Math.min(summaryInterval, yearsToEvent);
+    const before = snapshot();
+    for (let i = 0; i < yearsToAdvance; i++) advanceYear();
+    state.lastSnapshot = before;
+    renderYearSummary();
+    return;
+  }
+
+  // Less than interval — just advance to event
+  while (state.age < ev.age) advanceYear();
+  renderEvent(ev);
+}
+
+function advanceToRetirement() {
+  // After last event — show summaries year by year (or skip) until retirement (age 65)
+  if (state.age >= 65) return endGame();
+  const summaryInterval = state.speed === 'slow' ? 2 : state.speed === 'medium' ? 5 : 65;
+  if (summaryInterval >= 65 - state.age) {
+    while (state.age < 65) advanceYear();
+    return endGame();
+  }
+  const before = snapshot();
+  const years = Math.min(summaryInterval, 65 - state.age);
+  for (let i = 0; i < years; i++) advanceYear();
+  state.lastSnapshot = before;
+  renderYearSummary({ postEvents: true });
+}
+
+function renderYearSummary(opts = {}) {
+  const before = state.lastSnapshot;
+  const now = snapshot();
+  const yearsPassed = now.age - before.age;
+  const incomeEarned = (state.annualIncome || 0) * yearsPassed;
+  const savingsChange = now.savings - before.savings;
+  const debtChange = now.debt - before.debt;
+  const retirementChange = now.retirement401k - before.retirement401k;
+  const equityChange = now.homeEquity - before.homeEquity;
+
+  // Calculate net worth change
+  const beforeNW = before.savings + before.retirement401k + before.investments + before.homeEquity - before.debt;
+  const nowNW = now.savings + now.retirement401k + state.investments + now.homeEquity - now.debt;
+  const nwChange = nowNW - beforeNW;
+
+  // Generate a contextual tip
+  const tip = generateContextualTip();
+
+  const yearLabel = yearsPassed === 1 ? `YEAR ${now.age}` : `YEARS ${before.age + 1}–${now.age}`;
+  const heading = yearsPassed === 1 ? 'Quiet year' : `${yearsPassed} quiet years`;
+
+  const rows = [];
+  if (state.annualIncome > 0) rows.push(['💼 Earned', `+${fmt(incomeEarned)}`, 'positive']);
+  rows.push(['💰 Savings', `${savingsChange >= 0 ? '+' : ''}${fmt(savingsChange)}`, savingsChange >= 0 ? 'positive' : 'negative']);
+  if (debtChange !== 0) rows.push(['💳 Debt', `${debtChange >= 0 ? '+' : ''}${fmt(debtChange)}`, debtChange <= 0 ? 'positive' : 'negative']);
+  if (retirementChange !== 0) rows.push(['📈 401(k)', `+${fmt(retirementChange)}`, 'positive']);
+  if (equityChange > 0) rows.push(['🏡 Equity', `+${fmt(equityChange)}`, 'positive']);
+  rows.push(['📊 Net worth', `${nwChange >= 0 ? '+' : ''}${fmt(nwChange)}`, nwChange >= 0 ? 'positive' : 'negative']);
+
+  const nextAge = opts.postEvents ? Math.min(65, state.age + (state.speed === 'slow' ? 2 : 5)) : nextEventAge();
+  const continueLabel = opts.postEvents
+    ? state.age >= 65 ? 'See retirement report →' : `Continue to age ${nextAge} →`
+    : `Continue to age ${nextAge} →`;
+
+  const html = `
+    <div class="year-summary-card">
+      <div class="summary-header">
+        <span class="summary-age-label">${yearLabel} · ${heading}</span>
+        <span class="summary-mood-label">${moodEmoji(state.mood)} ${Math.round(state.mood)}</span>
+      </div>
+      <div class="summary-changes">
+        ${rows.map(([label, value, cls]) => `
+          <div class="summary-change-row">
+            <span class="summary-change-label">${label}</span>
+            <span class="summary-change-value change-${cls}">${value}</span>
+          </div>
+        `).join('')}
+      </div>
+      ${tip ? `<div class="summary-tip">💡 ${tip}</div>` : ''}
+      <button class="continue-btn" onclick="${opts.postEvents ? 'advanceToRetirement()' : 'advanceToNextEvent()'}">${continueLabel}</button>
+      ${state.speed !== 'fast' && !opts.postEvents ? `<button class="summary-skip-btn" onclick="skipToNextEvent()">⏭ Skip to next major event</button>` : ''}
+    </div>
+  `;
+  document.getElementById('event-area').innerHTML = html;
+  updateStats();
+  updateProgress();
+}
+
+function skipToNextEvent() {
+  // Jump straight to the next event
+  if (state.currentEventIndex >= EVENTS.length) return advanceToRetirement();
+  const ev = EVENTS[state.currentEventIndex];
+  while (state.age < ev.age) advanceYear();
+  renderEvent(ev);
+}
+
+function generateContextualTip() {
+  const tips = [];
+  // Income but no 401k
+  if (state.annualIncome > 0 && state.contribution401k === 0) {
+    tips.push("You're earning but not contributing to a [[401(k)]]. Even 1% gets you started — and the employer match is free money.");
+  }
+  // Cash sitting idle
+  if (state.savings > 15000 && state.investments === 0 && state.retirement401k < 5000) {
+    tips.push(`Your $${(state.savings/1000).toFixed(0)}k in savings is bleeding ~$${Math.round(state.savings * 0.03 / 1000)}k/year to inflation. A high-yield savings account or [[Index fund]] would fix this.`);
+  }
+  // Debt with no emergency fund
+  if (state.debt > 5000 && state.savings < 1000) {
+    tips.push("You're carrying debt with no emergency fund. One unexpected bill could spiral. Build $1k cushion first, then attack debt.");
+  }
+  // No credit history
+  if (!state.hasCredit && state.age > 20) {
+    tips.push("No credit history will haunt you when you try to rent or get a loan. A starter card paid in full monthly fixes this.");
+  }
+  // High debt-to-savings ratio
+  if (state.debt > state.savings * 3 && state.savings > 0) {
+    tips.push("Your debt is much larger than your savings. Build a small emergency fund, then aggressively pay down the highest-[[APR]] debt first.");
+  }
+  if (tips.length === 0) {
+    const generic = [
+      "Boring years are wealth-building years. Keep stacking.",
+      "Time in the market beats timing the market — especially in your boring years.",
+      "Lifestyle creep starts quietly. Watch where every raise actually goes.",
+      "An emergency fund is the foundation. Everything else builds on top of it.",
+    ];
+    return renderTerms(generic[Math.floor(Math.random() * generic.length)]);
+  }
+  return renderTerms(tips[0]);
+}
+
+function renderEvent(ev) {
+  const tagText = ev.type === 'opportunity' ? '✨ OPPORTUNITY' : ev.type === 'crisis' ? '⚠ LIFE EVENT' : '📌 LIFE EVENT';
+  const html = `
+    <div class="year-label">YEAR ${state.age} · ${state.name.toUpperCase()}'S STORY</div>
+    <div class="event-card">
+      <div class="event-tag ${ev.type}">${tagText}</div>
+      <div class="event-emoji">${ev.emoji}</div>
+      <div class="event-title">${ev.title}</div>
+      <div class="event-desc">${renderTerms(ev.desc)}</div>
+      <div class="event-context">▸ ${ev.context}</div>
+    </div>
+    <div class="choices-label">WHAT DO YOU DO?</div>
+    <div class="choices">
+      ${ev.choices.map((c, i) => `
+        <button class="choice-btn" onclick="makeChoice(${i})">
+          <div class="choice-text">
+            <div class="choice-title">${renderTerms(c.label)}</div>
+            <div class="choice-lesson">${renderTerms(c.lesson)}</div>
+          </div>
+          <div class="choice-arrow">→</div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('event-area').innerHTML = html;
+  attachTermHandlers();
+  updateProgress();
+}
+
+function makeChoice(i) {
+  const ev = EVENTS[state.currentEventIndex];
+  const c = ev.choices[i];
+  if (c.apply) c.apply(state);
+  state.decisions.push({ age: state.age, title: ev.title, choiceLabel: c.label, tag: c.tag });
+  renderOutcome(ev, c);
+}
+
+function renderOutcome(ev, choice) {
+  const o = choice.outcome;
+  const iconClass = choice.tag === 'good' ? '' : choice.tag === 'risky' ? 'bad' : 'mixed';
+  const icon = choice.tag === 'good' ? '✓' : choice.tag === 'risky' ? '✗' : '~';
+  const baseInvest = (state.investments || 0) + (state.retirement401k || 0);
+  const proj10 = baseInvest * Math.pow(1.07, 10);
+  const proj20 = baseInvest * Math.pow(1.07, 20);
+  const proj30 = baseInvest * Math.pow(1.07, 30);
+
+  const html = `
+    <div class="year-label">YEAR ${state.age} · OUTCOME</div>
+    <div class="outcome-card">
+      <div class="outcome-header">
+        <div class="outcome-icon ${iconClass}">${icon}</div>
+        <div class="outcome-title">${escapeHtml(choice.label.replace(/\[\[|\]\]/g, ''))}</div>
+      </div>
+      <div class="outcome-section">
+        <div class="outcome-section-label">📍 WHAT HAPPENED</div>
+        <div class="outcome-section-text">${renderTerms(o.summary)}</div>
+      </div>
+      <div class="outcome-section">
+        <div class="outcome-section-label">💡 THE LESSON</div>
+        <div class="outcome-section-text">${renderTerms(o.principle)}</div>
+      </div>
+      ${baseInvest > 100 ? `
+      <div class="outcome-section">
+        <div class="outcome-section-label">📊 IF YOU KEEP THIS UP</div>
+        <div class="projection-grid">
+          <div class="projection-cell"><div class="projection-year">+10 YRS</div><div class="projection-value">${fmt(proj10)}</div></div>
+          <div class="projection-cell"><div class="projection-year">+20 YRS</div><div class="projection-value">${fmt(proj20)}</div></div>
+          <div class="projection-cell"><div class="projection-year">+30 YRS</div><div class="projection-value">${fmt(proj30)}</div></div>
+        </div>
+      </div>` : ''}
+      <div class="outcome-section">
+        <div class="counterfactual-box">
+          <div class="counterfactual-label">⏪ ALTERNATIVE TIMELINE</div>
+          <div class="counterfactual-text">${renderTerms(o.counterfactual)}</div>
+        </div>
+      </div>
+      <button class="continue-btn" onclick="continueToNextYear()">Continue to age ${nextEventAge()} →</button>
+    </div>
+  `;
+  document.getElementById('event-area').innerHTML = html;
+  attachTermHandlers();
+  updateStats();
+}
+
+function nextEventAge() {
+  const next = EVENTS[state.currentEventIndex + 1];
+  return next ? next.age : 65;
+}
+
+function continueToNextYear() {
+  state.currentEventIndex += 1;
+  state.lastSnapshot = snapshot();
+  if (state.currentEventIndex >= EVENTS.length) {
+    return advanceToRetirement();
+  }
+  advanceToNextEvent();
+}
+
+// =============================================================
+// STATS UI
+// =============================================================
+function updateStats() {
+  document.getElementById('stat-savings').textContent = fmt(state.savings);
+  document.getElementById('stat-debt').textContent = fmt(state.debt);
+  document.getElementById('stat-mood').textContent = `${moodEmoji(state.mood)} ${Math.round(state.mood)}`;
+  document.getElementById('age-display').textContent = state.age;
+  document.getElementById('career-job').textContent = getJobAtAge(state.age);
+  document.getElementById('career-income').textContent = state.annualIncome > 0
+    ? `· ${fmt(state.annualIncome)}/yr`
+    : '· Not earning yet';
+  document.getElementById('career-location').innerHTML = autoHighlightTerms(`${GEO[state.geography].code} · ${DIFFICULTY[state.difficulty].name}`);
+}
+
+function updateProgress() {
+  const total = 65 - state.startAge;
+  const progressed = state.age - state.startAge;
+  const pct = total > 0 ? (progressed / total) * 100 : 100;
+  document.getElementById('progress-fill').style.width = Math.min(100, Math.max(0, pct)) + '%';
+}
+
+// =============================================================
+// END GAME
+// =============================================================
+function endGame() {
+  let projInvest = (state.investments || 0) + (state.retirement401k || 0);
+  let projAge = state.age;
+  while (projAge < 65) {
+    projInvest *= 1.07;
+    if (state.monthlyIncome > 0 && state.contribution401k > 0) {
+      projInvest += state.monthlyIncome * 12 * (state.contribution401k / 100) * 1.5; // includes match approximation
+    }
+    projAge += 1;
+  }
+  const finalNetWorth = projInvest + state.savings + (state.homeEquity || 0) - (state.debt || 0);
+
+  function gradeFor(score, scale = [3, 1, -1, -3]) {
+    if (score >= scale[0]) return 'A';
+    if (score >= scale[1]) return 'B';
+    if (score >= scale[2]) return 'C';
+    if (score >= scale[3]) return 'D';
+    return 'F';
+  }
+
+  const grades = {
+    Saving: gradeFor(state.scoreCard.saving),
+    Investing: gradeFor(state.scoreCard.investing),
+    'Debt Mgmt': gradeFor(state.scoreCard.debt),
+    'Risk Mgmt': gradeFor(state.scoreCard.risk, [2, 0, -2, -4]),
+  };
+  const gv = { A:4, B:3, C:2, D:1, F:0 };
+  const avg = Object.values(grades).reduce((a,b) => a + gv[b], 0) / 4;
+  const overall = avg >= 3.5 ? 'A' : avg >= 2.5 ? 'B' : avg >= 1.5 ? 'C' : avg >= 0.5 ? 'D' : 'F';
+  const overallLabel = {
+    A: 'Outstanding financial life',
+    B: 'Solid financial foundation',
+    C: 'Average — room to improve',
+    D: 'Significant struggles',
+    F: 'Financial crisis territory',
+  }[overall];
+
+  const goodCount = state.decisions.filter(d => d.tag === 'good').length;
+  const riskyCount = state.decisions.filter(d => d.tag === 'risky').length;
+  const neutralCount = state.decisions.filter(d => d.tag === 'neutral').length;
+
+  const mistake = state.decisions.find(d => d.tag === 'risky');
+  const mistakeText = mistake
+    ? `Year ${mistake.age}: <em>"${escapeHtml(mistake.choiceLabel.replace(/\[\[|\]\]/g, ''))}"</em> during <strong>${escapeHtml(mistake.title)}</strong>.`
+    : 'You played it remarkably safe — almost no risky moves.';
+
+  const html = `
+    <div class="report-hero">
+      <div class="report-grade-letter">${overall}</div>
+      <div class="report-grade-text">${overallLabel}</div>
+      <div class="report-grade-sub">${escapeHtml(state.name)}, projected at 65 · ${escapeHtml(state.career.name)}</div>
+    </div>
+    <div class="report-final-stats">
+      <div class="report-stat-card"><div class="report-stat-label">PROJECTED NET WORTH</div><div class="report-stat-value">${fmt(finalNetWorth)}</div></div>
+      <div class="report-stat-card"><div class="report-stat-label">RETIREMENT FUND</div><div class="report-stat-value">${fmt(projInvest)}</div></div>
+      <div class="report-stat-card"><div class="report-stat-label">FINAL DEBT</div><div class="report-stat-value">${fmt(state.debt)}</div></div>
+      <div class="report-stat-card"><div class="report-stat-label">MOOD</div><div class="report-stat-value">${moodEmoji(state.mood)} ${Math.round(state.mood)}</div></div>
+    </div>
+    <div class="breakdown-card">
+      <div class="breakdown-title">BREAKDOWN</div>
+      ${Object.entries(grades).map(([cat, g]) => `
+        <div class="breakdown-row">
+          <div class="breakdown-cat">${cat}</div>
+          <div class="breakdown-grade grade-${g}">${g}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="biggest-mistake">
+      <div class="biggest-mistake-label">⚠ BIGGEST FINANCIAL MISTAKE</div>
+      <div class="biggest-mistake-text">${mistakeText}</div>
+    </div>
+    <div class="breakdown-card">
+      <div class="breakdown-title">YOUR DECISIONS</div>
+      <div style="color: var(--text-muted); font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
+        Across ${state.decisions.length} life decisions, you chose ${goodCount} smart moves, ${neutralCount} neutral choices, and ${riskyCount} risky bets.
+      </div>
+      <div class="decisions-log">
+        ${state.decisions.map(d => {
+          const tagLabel = d.tag === 'good' ? '✓ SMART' : d.tag === 'risky' ? '⚠ RISKY' : '— NEUTRAL';
+          const tagClass = d.tag === 'good' ? 'tag-good' : d.tag === 'risky' ? 'tag-risky' : 'tag-neutral';
+          return `
+            <div class="decision-row">
+              <div class="decision-age">Y${d.age}</div>
+              <div class="decision-title">${escapeHtml(d.title)}</div>
+              <div class="decision-tag ${tagClass}">${tagLabel}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    ${state.encounteredTerms.size > 0 ? `
+    <div class="breakdown-card">
+      <div class="breakdown-title">📚 WORD BANK · ${state.encounteredTerms.size} TERMS LEARNED</div>
+      <div class="word-bank-list">
+        ${[...state.encounteredTerms].sort().map(term => `
+          <div class="word-bank-item">
+            <div class="word-bank-term">${escapeHtml(term)}</div>
+            <div class="word-bank-def">${escapeHtml(GLOSSARY[term] || '')}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
+    <button class="continue-btn" onclick="shareResult()">📤 Copy shareable summary</button>
+    <button class="restart-btn" onclick="restartGame()">↻ Live another life</button>
+  `;
+  document.getElementById('event-area').innerHTML = html;
+  document.getElementById('progress-fill').style.width = '100%';
+}
+
+function shareResult() {
+  let projInvest = (state.investments || 0) + (state.retirement401k || 0);
+  for (let a = state.age; a < 65; a++) {
+    projInvest *= 1.07;
+    if (state.monthlyIncome > 0 && state.contribution401k > 0) {
+      projInvest += state.monthlyIncome * 12 * (state.contribution401k / 100) * 1.5;
+    }
+  }
+  const finalNW = projInvest + state.savings + (state.homeEquity || 0) - (state.debt || 0);
+  const goodCount = state.decisions.filter(d => d.tag === 'good').length;
+
+  const text = `💰 t-money · ${state.name}'s Life
+Career: ${state.career.name}
+Difficulty: ${DIFFICULTY[state.difficulty].name} · ${GEO[state.geography].code}
+─────────────────
+Net worth at 65: ${fmt(finalNW)}
+Retirement fund: ${fmt(projInvest)}
+Smart moves: ${goodCount}/${state.decisions.length}
+
+Can you build a better life?`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('✓ Copied to clipboard!\n\n' + text);
+    }).catch(() => alert(text));
+  } else {
+    alert(text);
+  }
+}
+
+function restartGame() {
+  // reset state
+  Object.assign(state, {
+    name: '', careerInput: '', career: null,
+    startAge: 18,
+    age: 18, savings: 0, debt: 0, mood: 70,
+    monthlyIncome: 0, annualIncome: 0,
+    contribution401k: 0, retirement401k: 0, investments: 0,
+    hasCredit: false, creditScore: 0, hasHome: false, homeEquity: 0,
+    hasPartner: false, hasInvestments: false, hasEmergencyFund: false,
+    savingsRate: 0.10,
+    lastSnapshot: null, yearsSinceSummary: 0,
+    encounteredTerms: new Set(),
+    scoreCard: { saving: 0, investing: 0, debt: 0, risk: 0 },
+    decisions: [], currentEventIndex: 0,
+  });
+  nameInput.value = '';
+  ageInput.value = '18';
+  careerInput.value = '';
+  renderPreviewClear();
+  document.getElementById('setup-screen').classList.remove('hidden');
+  document.getElementById('game-screen').classList.add('hidden');
+  document.getElementById('topnav').classList.add('hidden');
+  document.getElementById('progress-fill').style.width = '0%';
+  checkCanStart();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// =============================================================
+// MODALS
+// =============================================================
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// Click outside modal to close
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => {
+    if (e.target === bg) bg.classList.remove('open');
+  });
+});
+
+function renderGlossary(filter = '') {
+  const list = document.getElementById('glossary-list');
+  const f = filter.toLowerCase();
+  const terms = Object.keys(GLOSSARY).sort();
+  const filtered = terms.filter(t => !f || t.toLowerCase().includes(f) || GLOSSARY[t].toLowerCase().includes(f));
+  list.innerHTML = filtered.map(t => `
+    <div class="glossary-item" id="gl-${escapeHtml(t).replace(/[^a-z0-9]/gi, '_')}">
+      <div class="glossary-term-name">${escapeHtml(t)}</div>
+      <div class="glossary-term-def">${escapeHtml(GLOSSARY[t])}</div>
+    </div>
+  `).join('');
+}
+document.getElementById('glossary-search').addEventListener('input', e => renderGlossary(e.target.value));
+renderGlossary();
+
+// =============================================================
+// CALCULATORS — 5 of them
+// =============================================================
+function open401k() {
+  // Pre-fill all calculators with current game state
+  document.getElementById('k401-age').value = state.age;
+  document.getElementById('k401-salary').value = Math.round(state.annualIncome) || 50000;
+  document.getElementById('k401-balance').value = Math.round(state.retirement401k) || 0;
+  document.getElementById('k401-contrib').value = state.contribution401k || 5;
+
+  document.getElementById('ira-age').value = state.age;
+
+  document.getElementById('debt-balance').value = Math.round(state.debt) || 5000;
+
+  // Refresh all
+  recalc401k();
+  recalcIRA();
+  recalcCompound();
+  recalcMortgage();
+  recalcDebt();
+
+  openModal('calc-modal');
+}
+
+// Tab switching
+document.querySelectorAll('.calc-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.calc-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.calc-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('active');
+  });
+});
+
+// Future value of an annuity (annual contribs)
+function fvAnnuity(P, PMT, r, n) {
+  if (r === 0) return P + PMT * n;
+  return P * Math.pow(1 + r, n) + PMT * ((Math.pow(1 + r, n) - 1) / r);
+}
+
+// 1. 401(k)
+function recalc401k() {
+  const age = parseInt(document.getElementById('k401-age').value) || 22;
+  const salary = parseFloat(document.getElementById('k401-salary').value) || 0;
+  const balance = parseFloat(document.getElementById('k401-balance').value) || 0;
+  const matchCap = parseFloat(document.getElementById('k401-match').value) || 0;
+  const contrib = parseInt(document.getElementById('k401-contrib').value) || 0;
+  const ret = parseInt(document.getElementById('k401-return').value) || 7;
+  document.getElementById('k401-contrib-display').textContent = contrib + '%';
+  document.getElementById('k401-return-display').textContent = ret + '%';
+  const yearsLeft = Math.max(0, 65 - age);
+  const annualContrib = salary * (contrib / 100);
+  const employerMatch = salary * Math.min(contrib / 100, matchCap / 100);
+  const total = fvAnnuity(balance, annualContrib + employerMatch, ret / 100, yearsLeft);
+  document.getElementById('k401-result').textContent = fmt(total);
+  if (contrib === 0) {
+    document.getElementById('k401-sub').textContent = `You're missing ${fmtFull(salary * (matchCap/100))}/yr in employer match. That's ~${fmt((salary * (matchCap/100)) * yearsLeft * 4)} given up.`;
+  } else if (contrib < matchCap) {
+    document.getElementById('k401-sub').textContent = `Bump to ${matchCap}% to capture full match (${fmtFull(salary * (matchCap/100))}/yr free).`;
+  } else {
+    document.getElementById('k401-sub').textContent = `Capturing full match. Employer adds ${fmtFull(employerMatch)}/yr.`;
+  }
+}
+['k401-age','k401-salary','k401-balance','k401-match','k401-contrib','k401-return'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalc401k);
+});
+
+// 2. Roth IRA
+function recalcIRA() {
+  const age = parseInt(document.getElementById('ira-age').value) || 22;
+  const balance = parseFloat(document.getElementById('ira-balance').value) || 0;
+  const contrib = parseInt(document.getElementById('ira-contrib').value) || 0;
+  const ret = parseInt(document.getElementById('ira-return').value) || 7;
+  const type = document.getElementById('ira-type').value;
+  document.getElementById('ira-contrib-display').textContent = '$' + contrib.toLocaleString();
+  document.getElementById('ira-return-display').textContent = ret + '%';
+  const yearsLeft = Math.max(0, 65 - age);
+  const total = fvAnnuity(balance, contrib, ret / 100, yearsLeft);
+  const totalContrib = balance + contrib * yearsLeft;
+  const growth = total - totalContrib;
+  document.getElementById('ira-result').textContent = fmt(total);
+  document.getElementById('ira-result-label').textContent = type === 'roth' ? 'TAX-FREE AT 65' : 'BALANCE AT 65 (TAXABLE)';
+  document.getElementById('ira-total-contrib').textContent = fmt(totalContrib);
+  document.getElementById('ira-growth').textContent = fmt(growth);
+  if (type === 'roth') {
+    document.getElementById('ira-sub').textContent = `Tax-free growth of ${fmt(growth)}. You never pay tax on this.`;
+    document.getElementById('ira-tip').textContent = 'Roth IRA: contributions taxed now, growth + withdrawals tax-free in retirement. Best for young earners in lower tax brackets. Annual limit $7,000 (under 50). Income limits apply ~$161k single / $240k married.';
+  } else {
+    document.getElementById('ira-sub').textContent = `Tax-deferred growth. You'll owe income tax on withdrawals (~22% = ${fmt(total * 0.22)}).`;
+    document.getElementById('ira-tip').textContent = 'Traditional IRA: contributions deductible now, taxed on withdrawal. Best if you expect lower tax bracket in retirement. Annual limit $7,000 (under 50). Required withdrawals start at 73.';
+  }
+}
+['ira-age','ira-balance','ira-contrib','ira-return','ira-type'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalcIRA);
+});
+
+// 3. Compound interest / general investment
+function recalcCompound() {
+  const initial = parseFloat(document.getElementById('ci-initial').value) || 0;
+  const monthly = parseFloat(document.getElementById('ci-monthly').value) || 0;
+  const years = parseInt(document.getElementById('ci-years').value) || 1;
+  const ret = parseInt(document.getElementById('ci-return').value) || 7;
+  document.getElementById('ci-return-display').textContent = ret + '%';
+  // Convert monthly to monthly compounding
+  const monthlyRate = ret / 100 / 12;
+  const months = years * 12;
+  const fv = initial * Math.pow(1 + monthlyRate, months) +
+            (monthlyRate > 0 ? monthly * (Math.pow(1 + monthlyRate, months) - 1) / monthlyRate : monthly * months);
+  const contributed = initial + monthly * months;
+  const earned = fv - contributed;
+  document.getElementById('ci-result').textContent = fmt(fv);
+  document.getElementById('ci-contributed').textContent = fmt(contributed);
+  document.getElementById('ci-earned').textContent = fmt(earned);
+  const ratio = contributed > 0 ? (earned / contributed) : 0;
+  document.getElementById('ci-sub').textContent = ratio > 1
+    ? `The market made ${ratio.toFixed(1)}× what you put in. That's compounding.`
+    : `Keep going — compounding accelerates over time.`;
+}
+['ci-initial','ci-monthly','ci-years','ci-return'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalcCompound);
+});
+
+// 4. Mortgage
+function recalcMortgage() {
+  const price = parseFloat(document.getElementById('mort-price').value) || 0;
+  const down = parseFloat(document.getElementById('mort-down').value) || 0;
+  const term = parseInt(document.getElementById('mort-term').value) || 30;
+  const rate = parseFloat(document.getElementById('mort-rate').value) || 7;
+  document.getElementById('mort-rate-display').textContent = rate.toFixed(2) + '%';
+  const principal = Math.max(0, price - down);
+  const monthlyRate = rate / 100 / 12;
+  const months = term * 12;
+  let payment = 0;
+  if (monthlyRate > 0 && principal > 0) {
+    payment = principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
+  } else if (principal > 0) {
+    payment = principal / months;
+  }
+  const totalPaid = payment * months;
+  const totalInterest = totalPaid - principal;
+  document.getElementById('mort-payment').textContent = fmt(payment);
+  document.getElementById('mort-interest').textContent = fmt(totalInterest);
+  document.getElementById('mort-total').textContent = fmt(totalPaid + down);
+  const downPct = price > 0 ? (down / price) * 100 : 0;
+  if (downPct < 20) {
+    document.getElementById('mort-sub').textContent = `${downPct.toFixed(0)}% down — you'll pay PMI (~${fmt(price * 0.005 / 12)}/mo) until you hit 20% equity.`;
+  } else {
+    document.getElementById('mort-sub').textContent = `${downPct.toFixed(0)}% down — no PMI required. Add ~$400-800/mo for taxes/insurance.`;
+  }
+}
+['mort-price','mort-down','mort-term','mort-rate'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalcMortgage);
+});
+
+// 5. Debt payoff
+function recalcDebt() {
+  const balance = parseFloat(document.getElementById('debt-balance').value) || 0;
+  const apr = parseFloat(document.getElementById('debt-apr').value) || 0;
+  const pmt = parseFloat(document.getElementById('debt-pmt').value) || 0;
+  document.getElementById('debt-pmt-display').textContent = '$' + pmt.toLocaleString();
+  const monthlyRate = apr / 100 / 12;
+  let months = 0, totalInterest = 0;
+  // simulate
+  let bal = balance;
+  while (bal > 0 && months < 600) {
+    const interest = bal * monthlyRate;
+    const principal = pmt - interest;
+    if (principal <= 0) {
+      months = 999; // never pays off
+      break;
+    }
+    bal -= principal;
+    totalInterest += interest;
+    months++;
+    if (bal < pmt) {
+      totalInterest += bal * monthlyRate;
+      bal = 0;
+      months++;
+      break;
+    }
+  }
+  if (months >= 600) {
+    document.getElementById('debt-months').textContent = 'Never';
+    document.getElementById('debt-sub').textContent = `Payment too low — interest exceeds principal. Increase payment or you'll never escape this debt.`;
+    document.getElementById('debt-interest').textContent = '∞';
+    document.getElementById('debt-total').textContent = '∞';
+    return;
+  }
+  document.getElementById('debt-months').textContent = months;
+  document.getElementById('debt-interest').textContent = fmt(totalInterest);
+  document.getElementById('debt-total').textContent = fmt(balance + totalInterest);
+  const years = (months / 12).toFixed(1);
+  document.getElementById('debt-sub').textContent = `${years} years to be debt-free. Doubling the payment usually cuts time AND interest by more than half.`;
+}
+['debt-balance','debt-apr','debt-pmt'].forEach(id => {
+  document.getElementById(id).addEventListener('input', recalcDebt);
+});
+
+// init
+checkCanStart();
+</script>
+</body>
+</html>
